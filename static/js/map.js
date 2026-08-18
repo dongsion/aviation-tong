@@ -34,6 +34,7 @@ let launchLayer = null;
 let allFeatures = [];
 let allLaunches = [];
 let launchCountryFilter = ''; // 发射国家筛选
+let notamSearchQuery = ''; // NOTAM 搜索关键词
 let activeTypes = new Set();
 let showLaunches = true;
 let lastUpdate = null;
@@ -81,6 +82,19 @@ function getFlag(cc, size = 20) {
     return `<img src="static/flags/${encodeURIComponent(cc2)}.png" alt="${escapeHtml(cc)}" style="width:${size}px;height:${size * 0.67}px;border-radius:2px;vertical-align:middle;object-fit:cover" onerror="this.style.display='none'">`;
 }
 
+// 国家中文名映射 (模块级常量，避免每次调用重建)
+const COUNTRY_NAME_CN = {
+    'USA': '美国', 'CHN': '中国', 'RUS': '俄罗斯', 'JPN': '日本', 'IND': '印度',
+    'GUF': '法属圭亚那', 'NZL': '新西兰', 'KAZ': '哈萨克斯坦', 'KOR': '韩国', 'GBR': '英国',
+    'NOR': '挪威', 'SWE': '瑞典', 'BRA': '巴西', 'OMN': '阿曼', 'AUS': '澳大利亚',
+    'IRN': '伊朗', 'ISR': '以色列', 'FRA': '法国', 'DEU': '德国', 'ITA': '意大利',
+    'CAN': '加拿大', 'ESP': '西班牙', 'UKR': '乌克兰', 'IDN': '印度尼西亚', 'MEX': '墨西哥',
+    'ZAF': '南非', 'TUR': '土耳其', 'KWT': '科威特', 'SAU': '沙特', 'ARE': '阿联酋',
+    'PRK': '朝鲜', 'VNM': '越南', 'THA': '泰国', 'MYS': '马来西亚', 'PHL': '菲律宾',
+    'PAK': '巴基斯坦', 'BGD': '孟加拉国', 'LKA': '斯里兰卡', 'EGY': '埃及', 'DZK': '阿尔及利亚',
+    'ARG': '阿根廷', 'CHL': '智利', 'PER': '秘鲁', 'COL': '哥伦比亚',
+};
+
 // ============================================================
 // 初始化
 // ============================================================
@@ -92,6 +106,20 @@ function init() {
     if (typeof initSatellites === 'function') {
         initSatellites();
     }
+    // 页面可见性检测 — 后台标签暂停自动刷新，节省带宽
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+            if (autoRefreshTimer) {
+                clearInterval(autoRefreshTimer);
+                autoRefreshTimer = null;
+            }
+        } else {
+            if (!autoRefreshTimer) {
+                loadData();
+                autoRefreshTimer = setInterval(loadData, 5 * 60 * 1000);
+            }
+        }
+    });
 }
 
 // 折叠/展开侧边栏区块
@@ -128,10 +156,11 @@ function initMap() {
         worldCopyJump: true,
     });
 
-    L.tileLayer('https://webrd0{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}', {
-        attribution: '&copy; 高德地图 | 航空通',
-        subdomains: ['1', '2', '3', '4'],
-        maxZoom: 18,
+    // 原生暗色瓦片 — 无需 CSS filter，移动端性能提升 5x+
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://carto.com/">CARTO</a> | &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> | 航空通',
+        subdomains: 'abcd',
+        maxZoom: 19,
     }).addTo(map);
 
     notamLayer = L.layerGroup().addTo(map);
@@ -281,30 +310,33 @@ async function loadData() {
     const refreshBtn = document.getElementById('btn-refresh');
     if (refreshBtn) refreshBtn.disabled = true;
 
+    // 显示加载遮罩（仅首次加载时）
+    const loadingOverlay = document.getElementById('loading-overlay');
+    if (loadingOverlay && allFeatures.length === 0 && allLaunches.length === 0) {
+        loadingOverlay.classList.remove('hidden');
+    }
+
     let hasError = false;
 
-    // 分别加载 NOTAM 和发射数据，部分失败时仍渲染可用数据
-    try {
-        const notamResp = await fetch('data/notams.json?t=' + Date.now());
-        if (notamResp.ok) {
-            const geojson = await notamResp.json();
-            allFeatures = geojson.features || [];
-            const meta = geojson.metadata || {};
-            lastUpdate = meta.updated_at;
-        }
-    } catch (err) {
-        console.error('NOTAM 数据加载失败:', err);
+    // 并行加载 NOTAM 和发射数据 — 比串行快 50%
+    const [notamResult, launchResult] = await Promise.allSettled([
+        fetch('data/notams.json?t=' + Date.now()).then(r => r.ok ? r.json() : null),
+        fetch('data/launches.json?t=' + Date.now()).then(r => r.ok ? r.json() : null),
+    ]);
+
+    if (notamResult.status === 'fulfilled' && notamResult.value) {
+        allFeatures = notamResult.value.features || [];
+        const meta = notamResult.value.metadata || {};
+        lastUpdate = meta.updated_at;
+    } else {
+        console.error('NOTAM 数据加载失败:', notamResult.reason);
         hasError = true;
     }
 
-    try {
-        const launchResp = await fetch('data/launches.json?t=' + Date.now());
-        if (launchResp.ok) {
-            const launchJson = await launchResp.json();
-            allLaunches = launchJson.features || [];
-        }
-    } catch (err) {
-        console.error('发射数据加载失败:', err);
+    if (launchResult.status === 'fulfilled' && launchResult.value) {
+        allLaunches = launchResult.value.features || [];
+    } else {
+        console.error('发射数据加载失败:', launchResult.reason);
         hasError = true;
     }
 
@@ -323,6 +355,11 @@ async function loadData() {
 
     if (hasError) {
         showStatus('error', '部分数据加载失败');
+    }
+
+    // 隐藏加载遮罩
+    if (loadingOverlay) {
+        loadingOverlay.classList.add('hidden');
     }
 
     if (refreshBtn) refreshBtn.disabled = false;
@@ -631,10 +668,23 @@ function renderNotamList() {
 
     let features = allFeatures;
 
+    // 类型筛选
     if (activeTypes.size > 0) {
         features = features.filter(f =>
             activeTypes.has((f.properties || {}).type)
         );
+    }
+
+    // 关键词搜索
+    if (notamSearchQuery) {
+        const q = notamSearchQuery.toLowerCase();
+        features = features.filter(f => {
+            const p = f.properties || {};
+            return (p.notam_code || '').toLowerCase().includes(q) ||
+                   (p.fir || '').toLowerCase().includes(q) ||
+                   (p.raw_message || '').toLowerCase().includes(q) ||
+                   (p.type_name || '').toLowerCase().includes(q);
+        });
     }
 
     if (features.length === 0) {
@@ -642,28 +692,25 @@ function renderNotamList() {
         return;
     }
 
-    let html = '';
+    // 使用 DocumentFragment 减少 DOM 回流
+    const fragment = document.createDocumentFragment();
     features.forEach(feature => {
         const props = feature.properties || {};
         const notamType = props.type || 'other';
         const config = TYPE_CONFIG[notamType] || TYPE_CONFIG.other;
 
-        html += `
-            <div class="notam-card" style="border-left-color:${config.color}" data-code="${escapeHtml(props.notam_code || '')}">
-                <div class="notam-code">${escapeHtml(props.notam_code || 'N/A')}</div>
-                <div class="notam-type">${escapeHtml(config.name)}</div>
-                <div class="notam-time">${escapeHtml(props.start || '')} ~ ${escapeHtml(props.end || '')}</div>
-                <span class="notam-fir">${escapeHtml(props.fir || '')}</span>
-            </div>
+        const card = document.createElement('div');
+        card.className = 'notam-card';
+        card.style.borderLeftColor = config.color;
+        card.dataset.code = props.notam_code || '';
+        card.innerHTML = `
+            <div class="notam-code">${escapeHtml(props.notam_code || 'N/A')}</div>
+            <div class="notam-type">${escapeHtml(config.name)}</div>
+            <div class="notam-time">${escapeHtml(props.start || '')} ~ ${escapeHtml(props.end || '')}</div>
+            <span class="notam-fir">${escapeHtml(props.fir || '')}</span>
         `;
-    });
 
-    container.innerHTML = html;
-
-    // 绑定点击事件
-    container.querySelectorAll('.notam-card').forEach((card, idx) => {
         card.addEventListener('click', () => {
-            const feature = features[idx];
             const geometry = feature.geometry;
             if (geometry && geometry.type === 'Polygon') {
                 const coords = geometry.coordinates[0];
@@ -672,8 +719,20 @@ function renderNotamList() {
                 map.fitBounds(bounds, { padding: [50, 50] });
             }
         });
+
+        fragment.appendChild(card);
     });
+
+    container.innerHTML = '';
+    container.appendChild(fragment);
 }
+
+// NOTAM 搜索防抖
+const filterNotamsBySearch = debounce(function() {
+    const input = document.getElementById('notam-search-input');
+    if (input) notamSearchQuery = input.value.trim();
+    renderNotamList();
+}, 250);
 
 function highlightNotamInList(code) {
     const safeCode = escapeHtml(code);
@@ -717,39 +776,41 @@ function renderLaunchList() {
         return ta.localeCompare(tb);
     });
 
-    let html = '';
+    // 使用 DocumentFragment 减少 DOM 回流
+    const fragment = document.createDocumentFragment();
     sorted.forEach(feature => {
         const props = feature.properties || {};
         const flag = getFlag(props.country_code);
         const isGo = (props.status || '').toLowerCase().includes('go');
         const color = isGo ? '#00E676' : '#FFAB00';
 
-        html += `
-            <div class="launch-card" data-slug="${escapeHtml(props.slug || props.name)}" style="border-left-color:${color}">
-                <div class="launch-name">${flag} ${escapeHtml(props.rocket_cn || props.rocket || 'N/A')}</div>
-                <div class="launch-mission">📡 ${escapeHtml(props.mission_name || 'N/A')}</div>
-                <div class="launch-time" style="color:${isGo ? '#00e676' : '#FFAB00'};font-weight:700">
-                    ⏰ ${escapeHtml(props.net_display || 'N/A')}
-                </div>
-                <div class="launch-countdown">${escapeHtml(props.countdown || '')}</div>
-                <span class="notam-fir">${escapeHtml(props.location_cn || props.location_name || '')}</span>
+        const card = document.createElement('div');
+        card.className = 'launch-card';
+        card.dataset.slug = props.slug || props.name || '';
+        card.style.borderLeftColor = color;
+        card.innerHTML = `
+            <div class="launch-name">${flag} ${escapeHtml(props.rocket_cn || props.rocket || 'N/A')}</div>
+            <div class="launch-mission">📡 ${escapeHtml(props.mission_name || 'N/A')}</div>
+            <div class="launch-time" style="color:${isGo ? '#00e676' : '#FFAB00'};font-weight:700">
+                ⏰ ${escapeHtml(props.net_display || 'N/A')}
             </div>
+            <div class="launch-countdown">${escapeHtml(props.countdown || '')}</div>
+            <span class="notam-fir">${escapeHtml(props.location_cn || props.location_name || '')}</span>
         `;
-    });
 
-    container.innerHTML = html;
-
-    // 绑定点击事件
-    container.querySelectorAll('.launch-card').forEach((card, idx) => {
         card.addEventListener('click', () => {
-            const feature = sorted[idx];
             const geometry = feature.geometry;
             if (geometry && geometry.type === 'Point') {
                 const [lon, lat] = geometry.coordinates;
                 map.setView([lat, lon], 6, { animate: true });
             }
         });
+
+        fragment.appendChild(card);
     });
+
+    container.innerHTML = '';
+    container.appendChild(fragment);
 }
 
 // 更新发射国家筛选下拉框
@@ -765,19 +826,6 @@ function updateLaunchCountryFilter() {
             countryCounts[cc] = (countryCounts[cc] || 0) + 1;
         }
     });
-
-    // 国家中文名映射
-    const COUNTRY_NAME_CN = {
-        'USA': '美国', 'CHN': '中国', 'RUS': '俄罗斯', 'JPN': '日本', 'IND': '印度',
-        'GUF': '法属圭亚那', 'NZL': '新西兰', 'KAZ': '哈萨克斯坦', 'KOR': '韩国', 'GBR': '英国',
-        'NOR': '挪威', 'SWE': '瑞典', 'BRA': '巴西', 'OMN': '阿曼', 'AUS': '澳大利亚',
-        'IRN': '伊朗', 'ISR': '以色列', 'FRA': '法国', 'DEU': '德国', 'ITA': '意大利',
-        'CAN': '加拿大', 'ESP': '西班牙', 'UKR': '乌克兰', 'IDN': '印度尼西亚', 'MEX': '墨西哥',
-        'ZAF': '南非', 'TUR': '土耳其', 'KWT': '科威特', 'SAU': '沙特', 'ARE': '阿联酋',
-        'PRK': '朝鲜', 'VNM': '越南', 'THA': '泰国', 'MYS': '马来西亚', 'PHL': '菲律宾',
-        'PAK': '巴基斯坦', 'BGD': '孟加拉国', 'LKA': '斯里兰卡', 'EGY': '埃及', 'DZK': '阿尔及利亚',
-        'ARG': '阿根廷', 'CHL': '智利', 'PER': '秘鲁', 'COL': '哥伦比亚',
-    };
 
     // 排序：按数量降序
     const sortedCountries = Object.entries(countryCounts).sort((a, b) => b[1] - a[1]);

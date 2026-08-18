@@ -10,11 +10,11 @@
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✈️</text></svg>">
 
     <!-- Leaflet CSS (本地) -->
-    <link rel="stylesheet" href="static/leaflet/leaflet.css?v=18">
+    <link rel="stylesheet" href="static/leaflet/leaflet.css?v=19">
     <!-- 自定义 CSS -->
-    <link rel="stylesheet" href="static/css/style.css?v=18">
+    <link rel="stylesheet" href="static/css/style.css?v=19">
     <!-- 付费功能 CSS -->
-    <link rel="stylesheet" href="static/css/premium.css?v=18">
+    <link rel="stylesheet" href="static/css/premium.css?v=19">
 </head>
 <body>
 
@@ -152,8 +152,14 @@
                     <span>NOTAM 列表</span>
                     <span class="section-arrow">▼</span>
                 </div>
-                <div class="section-content" id="notam-list" style="flex:1;overflow-y:auto;">
-                    <div class="notam-empty">加载中...</div>
+                <div class="section-content" style="flex:1;overflow:hidden;display:flex;flex-direction:column;">
+                    <!-- 搜索栏 -->
+                    <div class="sat-search-bar" style="padding:6px 10px;">
+                        <input type="text" id="notam-search-input" class="sat-search-input" placeholder="🔍 搜索 NOTAM 编号/情报区..." oninput="filterNotamsBySearch()">
+                    </div>
+                    <div id="notam-list" style="flex:1;overflow-y:auto;">
+                        <div class="notam-empty">加载中...</div>
+                    </div>
                 </div>
             </div>
 
@@ -216,6 +222,11 @@
         <!-- 地图区 -->
         <div class="map-container">
             <div id="map"></div>
+            <!-- 加载遮罩层 -->
+            <div class="loading-overlay" id="loading-overlay">
+                <div class="loading-spinner"></div>
+                <div class="loading-text">正在加载航空数据...</div>
+            </div>
             <!-- 折叠时的展开按钮 -->
             <button class="btn-expand" id="btn-expand" onclick="toggleSidebar()" title="展开侧边栏">
                 <span>▶</span>
@@ -226,14 +237,14 @@
         </div>
     </div>
 
-    <!-- Leaflet JS (本地) + satellite.js + 自定义 JS -->
-    <script src="static/leaflet/leaflet.js?v=18"></script>
-    <script src="static/js/lib/satellite.min.js"></script>
-    <script src="static/js/satellites.js?v=18"></script>
-    <script src="static/js/map.js?v=18"></script>
+    <!-- Leaflet JS (本地) + satellite.js + 自定义 JS (defer 优化加载) -->
+    <script src="static/leaflet/leaflet.js?v=19" defer></script>
+    <script src="static/js/lib/satellite.min.js" defer></script>
+    <script src="static/js/satellites.js?v=19" defer></script>
+    <script src="static/js/map.js?v=19" defer></script>
     <!-- 付费功能 JS -->
-    <script src="static/js/premium/subscription.js?v=18"></script>
-    <script src="static/js/premium/flight_plan.js?v=18"></script>
-    <script src="static/js/premium/satellite_pass.js?v=18"></script>
+    <script src="static/js/premium/subscription.js?v=19" defer></script>
+    <script src="static/js/premium/flight_plan.js?v=19" defer></script>
+    <script src="static/js/premium/satellite_pass.js?v=19" defer></script>
 </body>
 </html>

@@ -11,7 +11,7 @@ import threading
 import json
 import time
 import traceback
-from http.server import HTTPServer, SimpleHTTPRequestHandler
+from http.server import ThreadingHTTPServer, SimpleHTTPRequestHandler
 from urllib.parse import urlparse, parse_qs
 
 REPO_ROOT = os.path.dirname(os.path.abspath(__file__))
@@ -303,9 +303,9 @@ def main():
     if len(sys.argv) > 2:
         host = sys.argv[2]
 
-    server = HTTPServer((host, port), AviationHandler)
+    server = ThreadingHTTPServer((host, port), AviationHandler)
     print(f"{'=' * 60}")
-    print(f"  航空通 开发服务器")
+    print(f"  航空通 开发服务器 (多线程)")
     print(f"  地址: http://localhost:{port}")
     print(f"  刷新API: http://localhost:{port}/api/refresh")
     print(f"  状态API: http://localhost:{port}/api/status")

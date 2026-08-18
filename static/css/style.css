@@ -439,11 +439,7 @@ html, body {
     background: #0a1929;
 }
 
-/* Leaflet 暗色主题覆盖 */
-.leaflet-tile-pane {
-    filter: invert(1) hue-rotate(180deg) brightness(0.9) contrast(0.9);
-}
-
+/* Leaflet 暗色主题 — 使用原生暗色瓦片，无需 CSS filter */
 .leaflet-container {
     background: #0a1929;
 }

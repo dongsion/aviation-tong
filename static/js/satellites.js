@@ -257,14 +257,14 @@ function filterSatellitesByCategory() {
 }
 
 /**
- * 搜索卫星并定位 (添加防抖优化)
+ * 搜索卫星并定位 (添加防抖优化 — 自包含，不依赖 map.js)
  */
-const searchSatelliteDebounced = debounce(function() {
-    _doSearchSatellite();
-}, 250);
-
+let _satSearchTimer = null;
 function searchSatellite() {
-    searchSatelliteDebounced();
+    if (_satSearchTimer) clearTimeout(_satSearchTimer);
+    _satSearchTimer = setTimeout(() => {
+        _doSearchSatellite();
+    }, 250);
 }
 
 function _doSearchSatellite() {
@@ -391,31 +391,31 @@ function showSatellitePopup(sat, pos) {
             <div class="sat-popup-body">
                 <div class="sat-info-row">
                     <span class="sat-label">原名</span>
-                    <span class="sat-value">${sat.name}</span>
+                    <span class="sat-value">${escapeHtml(sat.name)}</span>
                 </div>
                 <div class="sat-info-row">
                     <span class="sat-label">NORAD编号</span>
-                    <span class="sat-value">${sat.norad_id}</span>
+                    <span class="sat-value">${escapeHtml(String(sat.norad_id))}</span>
                 </div>
                 <div class="sat-info-row">
                     <span class="sat-label">类别</span>
-                    <span class="sat-value">${config.name}</span>
+                    <span class="sat-value">${escapeHtml(config.name)}</span>
                 </div>
                 <div class="sat-info-row">
                     <span class="sat-label">高度</span>
-                    <span class="sat-value">${pos.alt.toFixed(1)} km</span>
+                    <span class="sat-value" data-field="altitude">${pos.alt.toFixed(1)} km</span>
                 </div>
                 <div class="sat-info-row">
                     <span class="sat-label">速度</span>
-                    <span class="sat-value">${velocity} km/s</span>
+                    <span class="sat-value" data-field="velocity">${velocity} km/s</span>
                 </div>
                 <div class="sat-info-row">
                     <span class="sat-label">经度</span>
-                    <span class="sat-value">${pos.lng.toFixed(4)}°</span>
+                    <span class="sat-value" data-field="lng">${pos.lng.toFixed(4)}°</span>
                 </div>
                 <div class="sat-info-row">
                     <span class="sat-label">纬度</span>
-                    <span class="sat-value">${pos.lat.toFixed(4)}°</span>
+                    <span class="sat-value" data-field="lat">${pos.lat.toFixed(4)}°</span>
                 </div>
                 <div class="sat-info-row">
                     <span class="sat-label">状态</span>
@@ -435,21 +435,39 @@ function showSatellitePopup(sat, pos) {
     .setContent(html)
     .openOn(map);
 
-    // 持续更新位置
+    // 持续更新位置和弹窗内实时数据
     if (satelliteTrackTimer) clearInterval(satelliteTrackTimer);
     satelliteTrackTimer = setInterval(() => {
         const newPos = calcSatellitePosition(sat.tle1, sat.tle2);
         if (newPos) {
+            // 更新弹窗位置
             popup.setLatLng([newPos.lat, newPos.lng]);
-            // 更新弹窗内的数据
-            const velocityEl = popup.getElement()?.querySelector('.sat-value');
-            // 简单更新：重新设置内容
+
+            // 更新弹窗内显示的实时数据
+            const el = popup.getElement();
+            if (el) {
+                const velEl = el.querySelector('[data-field="velocity"]');
+                const altEl = el.querySelector('[data-field="altitude"]');
+                const lngEl = el.querySelector('[data-field="lng"]');
+                const latEl = el.querySelector('[data-field="lat"]');
+                if (velEl && newPos.velocity) {
+                    const v = Math.sqrt(
+                        newPos.velocity.x * newPos.velocity.x +
+                        newPos.velocity.y * newPos.velocity.y +
+                        newPos.velocity.z * newPos.velocity.z
+                    );
+                    velEl.textContent = v.toFixed(0) + ' km/s';
+                }
+                if (altEl) altEl.textContent = newPos.alt.toFixed(1) + ' km';
+                if (lngEl) lngEl.textContent = newPos.lng.toFixed(4) + '°';
+                if (latEl) latEl.textContent = newPos.lat.toFixed(4) + '°';
+            }
         }
-    }, 5000);
+    }, 2000);
 }
 
 /**
- * 渲染所有卫星到地图
+ * 渲染所有卫星到地图 (仅渲染视口内卫星，大幅减少标记)
  */
 function renderSatellites() {
     if (satelliteLayer) {
@@ -458,13 +476,16 @@ function renderSatellites() {
     satelliteLayer = L.layerGroup();
     satelliteMarkers = [];
 
+    const mapBounds = map.getBounds();
     let count = 0;
     for (const sat of satelliteData) {
         const pos = calcSatellitePosition(sat.tle1, sat.tle2);
         if (!pos) continue;
 
+        // 视口裁剪：跳过不在当前视野内的卫星
+        if (!mapBounds.contains([pos.lat, pos.lng])) continue;
+
         const config = SAT_CATEGORY_CONFIG[sat.category] || { color: '#546E7A', icon: '🛰️' };
-        const nameCN = getSatelliteNameCN(sat.name);
 
         // 创建卫星图标
         const icon = L.divIcon({
@@ -498,18 +519,35 @@ function renderSatellites() {
         satelliteLayer.addTo(map);
     }
 
-    console.log(`已渲染 ${count} 颗卫星`);
+    console.log(`已渲染 ${count} 颗卫星 (视口内)`);
+}
+
+// 地图移动/缩放时防抖重渲染卫星 (自包含，不依赖 map.js 的 debounce)
+let _satMoveTimer = null;
+function onSatMapMove() {
+    if (_satMoveTimer) clearTimeout(_satMoveTimer);
+    _satMoveTimer = setTimeout(() => {
+        if (showSatellites) {
+            renderSatellites();
+        }
+    }, 300);
 }
 
 /**
  * 更新所有卫星位置（实时刷新）
  */
 function updateSatellitePositions() {
+    // 只更新当前视口内的卫星标记 — 减少计算量
+    const mapBounds = map.getBounds();
     for (const item of satelliteMarkers) {
         const pos = calcSatellitePosition(item.sat.tle1, item.sat.tle2);
         if (pos) {
             item.marker.setLatLng([pos.lat, pos.lng]);
             item.lastPos = pos;
+            // 如果卫星飞出视口，移除标记；飞入视口，不需处理（下次 renderSatellites 会补上）
+            if (!mapBounds.contains([pos.lat, pos.lng]) && satelliteLayer.hasLayer(item.marker)) {
+                satelliteLayer.removeLayer(item.marker);
+            }
         }
     }
 }
@@ -538,6 +576,10 @@ function toggleSatellites(forceOn) {
             satelliteUpdateTimer = setInterval(updateSatellitePositions, 30000);
         }
 
+        // 地图移动/缩放时防抖重渲染卫星
+        map.on('moveend', onSatMapMove);
+        map.on('zoomend', onSatMapMove);
+
         // 更新按钮状态
         const btn = document.getElementById('btn-toggle-sat');
         if (btn) btn.classList.add('active');
@@ -557,6 +599,10 @@ function toggleSatellites(forceOn) {
             clearInterval(satelliteTrackTimer);
             satelliteTrackTimer = null;
         }
+
+        // 移除地图事件监听
+        map.off('moveend', onSatMapMove);
+        map.off('zoomend', onSatMapMove);
 
         const btn = document.getElementById('btn-toggle-sat');
         if (btn) btn.classList.remove('active');
