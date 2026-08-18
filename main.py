@@ -277,6 +277,70 @@ ROCKET_NAME_MAP = {
     'SSLV': 'SSLV',
     'New Glenn': '新格伦',
     'New Shepard': '新谢泼德',
+    'Block 5': 'Block 5',
+    'Block 2': 'Block 2',
+    'V3': 'V3',
+    'Nuri': '世界号',
+    'Mir': '和平号',
+    'Spectrum': '光谱号',
+    'Themis': '忒弥斯',
+    'Vega': '织女星',
+    'Pallas': '帕拉斯',
+    'HANBIT': '韩比特',
+    'Haste': '极速号',
+    'Firefly Alpha': '萤火虫阿尔法',
+    'Firefly': '萤火虫',
+    'Alpha': '阿尔法',
+    'Rocket': '火箭实验室',
+    'Transporter': '运输者',
+    'Starlink': '星链',
+    'Crew': '载人',
+    'Cygnus': '天鹅座',
+    'Dragon': '龙飞船',
+    'Progress': '进步号',
+    'Tacsat': '战术卫星',
+    'Sentinel': '哨兵',
+    'GPS': 'GPS',
+    'Galileo': '伽利略',
+    'Gaganyaan': '加冈扬',
+    'Chandrayaan': '月船',
+    'Aditya': '太阳神',
+    'Nancy Grace': '南希·格雷斯',
+    'Roman': '罗曼',
+    'Griffin': '格里芬',
+    'AMAZON': '亚马逊',
+    'LEO': '近地轨道',
+    'Rivada': '里瓦达',
+    'Telesat': '电信卫星',
+    'Lightspeed': '光速',
+    'SDA': '太空发展局',
+    'Tranche': '批次',
+    'Tracking': '跟踪层',
+    'Transport': '传输层',
+    'O3b': 'O3b',
+    'mpower': 'mPOWER',
+    'Globalstar': '全球星',
+    'Hawkeye': '鹰眼',
+    'BlackSky': '黑天',
+    'LoxSat': '液氧卫星',
+    'NeonSAT': '霓虹卫星',
+    'Onward': '前行号',
+    'Upward': '向上号',
+    'Strix': '角鸮',
+    'Lightning God': '雷神',
+    'IQPS': 'IQPS',
+    'Martian Moon': '火卫探测',
+    'MMX': '火卫探测',
+    'HTV': '白鹳',
+    'EOS': '地球观测卫星',
+    'GISAT': '地球同步成像卫星',
+    'IRNSS': '印度区域导航',
+    'NVS': 'NVS',
+    'MTG': '第三代气象卫星',
+    'Demonstrator': '验证机',
+    'T1H': 'T1H',
+    'VC6L': 'VC6L',
+    'N22': 'N22',
 }
 
 
@@ -291,14 +355,20 @@ def translate_launch_site(name: str) -> str:
 
 
 def translate_rocket_name(name: str) -> str:
-    """翻译火箭名称"""
+    """翻译火箭名称为中文
+
+    将英文火箭名称中的关键词替换为中文。
+    对于无法翻译的部分保留原文。
+    """
     if not name:
         return ''
     result = name
-    for en, cn in ROCKET_NAME_MAP.items():
-        if en.lower() in name.lower():
-            result = result.replace(en, cn)
-            break
+    # 按关键词长度排序，长的优先匹配（避免短词覆盖长词）
+    sorted_map = sorted(ROCKET_NAME_MAP.items(), key=lambda x: len(x[0]), reverse=True)
+    for en, cn in sorted_map:
+        if en.lower() in result.lower():
+            # 大小写不敏感替换
+            result = re.sub(re.escape(en), cn, result, flags=re.IGNORECASE)
     return result
 
 
