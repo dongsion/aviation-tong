@@ -2,68 +2,84 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width-width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
     <meta name="description" content="航空通 - NOTAM 航空通告与火箭发射计划实时可视化系统">
-    <title>航空通 - NOTAM 航空通告 + 火箭发射实时地图</title>
+    <title>航空通 - NOTAM 通告 + 火箭发射实时地图</title>
 
     <!-- Favicon -->
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✈️</text></svg>">
 
     <!-- Leaflet CSS (本地) -->
-    <link rel="stylesheet" href="static/leaflet/leaflet.css?v=13">
+    <link rel="stylesheet" href="static/leaflet/leaflet.css?v=14">
     <!-- 自定义 CSS -->
-    <link rel="stylesheet" href="static/css/style.css?v=13">
+    <link rel="stylesheet" href="static/css/style.css?v=14">
 </head>
 <body>
 
     <!-- ============================================================
-         顶栏
-         ============================================================ -->
-    <div class="top-bar">
-        <div class="logo">
-            <span class="icon">✈️</span>
-            <span>航空通</span>
-            <span class="subtitle">NOTAM 通告 + 火箭发射实时地图</span>
-        </div>
-        <div class="status">
-            <div class="status-item">
-                <span class="status-dot"></span>
-                <span>实时连接</span>
-            </div>
-            <div class="status-item">
-                NOTAM: <span id="stat-total" style="font-weight:700;color:var(--text-primary)">0</span>
-            </div>
-            <div class="status-item">
-                生效: <span id="stat-active" style="font-weight:700;color:#00e676">0</span>
-            </div>
-            <div class="status-item">
-                🚀发射: <span id="stat-launches" style="font-weight:700;color:#FFAB00">0</span>
-            </div>
-            <div class="status-item mobile-hide">
-                🛰️卫星: <span id="stat-satellites" style="font-weight:700;color:#00E5FF">0</span>
-            </div>
-            <div class="status-item mobile-hide">
-                来源: <span id="stat-source" style="font-weight:700">N/A</span>
-            </div>
-            <div class="status-item mobile-hide">
-                更新: <span id="stat-update" style="font-weight:600">--</span>
-            </div>
-            <button class="btn-refresh" id="btn-toggle-sat" onclick="toggleSatellites()">
-                🛰️ 卫星
-            </button>
-            <button class="btn-refresh" id="btn-refresh" onclick="manualRefresh()">
-                刷新数据
-            </button>
-        </div>
-    </div>
-
-    <!-- ============================================================
-         主布局: 侧边栏 + 地图
+         主布局: 侧边栏 + 地图 (无顶栏，全部信息在左侧)
          ============================================================ -->
     <div class="main-container">
 
         <!-- 侧边栏 -->
-        <div class="sidebar">
+        <div class="sidebar" id="sidebar">
+
+            <!-- 侧边栏头部: Logo + 折叠按钮 -->
+            <div class="sidebar-header">
+                <div class="logo">
+                    <span class="icon">✈️</span>
+                    <div class="logo-text">
+                        <div class="logo-title">航空通</div>
+                        <div class="logo-subtitle">NOTAM + 火箭发射 + 卫星追踪</div>
+                    </div>
+                </div>
+                <button class="btn-collapse" onclick="toggleSidebar()" title="折叠侧边栏">
+                    <span>◀</span>
+                </button>
+            </div>
+
+            <!-- 状态信息 (可折叠) -->
+            <div class="sidebar-section" id="section-status">
+                <div class="section-title" onclick="toggleSection('section-status')">
+                    <span>📊</span>
+                    <span>状态信息</span>
+                    <span class="section-arrow">▼</span>
+                </div>
+                <div class="section-content" id="status-content">
+                    <div class="status-grid">
+                        <div class="status-cell">
+                            <span class="status-dot"></span>
+                            <span>实时连接</span>
+                        </div>
+                        <div class="status-cell">
+                            NOTAM: <span id="stat-total" style="font-weight:700;color:var(--text-primary)">0</span>
+                        </div>
+                        <div class="status-cell">
+                            生效: <span id="stat-active" style="font-weight:700;color:#00e676">0</span>
+                        </div>
+                        <div class="status-cell">
+                            🚀发射: <span id="stat-launches" style="font-weight:700;color:#FFAB00">0</span>
+                        </div>
+                        <div class="status-cell">
+                            🛰️卫星: <span id="stat-satellites" style="font-weight:700;color:#00E5FF">0</span>
+                        </div>
+                        <div class="status-cell">
+                            来源: <span id="stat-source" style="font-weight:700">N/A</span>
+                        </div>
+                        <div class="status-cell">
+                            更新: <span id="stat-update" style="font-weight:600">--</span>
+                        </div>
+                    </div>
+                    <div class="status-buttons">
+                        <button class="btn-action" id="btn-toggle-sat" onclick="toggleSatellites()">
+                            🛰️ 卫星
+                        </button>
+                        <button class="btn-action" id="btn-refresh" onclick="manualRefresh()">
+                            🔄 刷新数据
+                        </button>
+                    </div>
+                </div>
+            </div>
 
             <!-- 图例区 -->
             <div class="sidebar-section" id="section-legend">
@@ -146,13 +162,18 @@
         <!-- 地图区 -->
         <div class="map-container">
             <div id="map"></div>
+            <!-- 折叠时的展开按钮 -->
+            <button class="btn-expand" id="btn-expand" onclick="toggleSidebar()" title="展开侧边栏">
+                <span>▶</span>
+                <span class="btn-expand-text">信息面板</span>
+            </button>
         </div>
     </div>
 
     <!-- Leaflet JS (本地) + satellite.js + 自定义 JS -->
-    <script src="static/leaflet/leaflet.js?v=13"></script>
+    <script src="static/leaflet/leaflet.js?v=14"></script>
     <script src="static/js/lib/satellite.min.js"></script>
-    <script src="static/js/satellites.js?v=13"></script>
-    <script src="static/js/map.js?v=13"></script>
+    <script src="static/js/satellites.js?v=14"></script>
+    <script src="static/js/map.js?v=14"></script>
 </body>
 </html>
