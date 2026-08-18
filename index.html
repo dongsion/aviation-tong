@@ -40,11 +40,17 @@
                 🚀发射: <span id="stat-launches" style="font-weight:700;color:#FFAB00">0</span>
             </div>
             <div class="status-item mobile-hide">
+                🛰️卫星: <span id="stat-satellites" style="font-weight:700;color:#00E5FF">0</span>
+            </div>
+            <div class="status-item mobile-hide">
                 来源: <span id="stat-source" style="font-weight:700">N/A</span>
             </div>
             <div class="status-item mobile-hide">
                 更新: <span id="stat-update" style="font-weight:600">--</span>
             </div>
+            <button class="btn-refresh" id="btn-toggle-sat" onclick="toggleSatellites()">
+                🛰️ 卫星
+            </button>
             <button class="btn-refresh" id="btn-refresh" onclick="manualRefresh()">
                 刷新数据
             </button>
@@ -87,6 +93,28 @@
                 </div>
             </div>
 
+            <!-- 卫星追踪 -->
+            <div class="sidebar-section" id="section-satellites" style="flex:1;display:flex;flex-direction:column;overflow:hidden;min-height:200px;">
+                <div class="section-title" onclick="toggleSection('section-satellites')">
+                    <span>🛰️</span>
+                    <span>卫星实时追踪</span>
+                    <span class="section-arrow">▼</span>
+                </div>
+                <div class="section-content" style="flex:1;display:flex;flex-direction:column;overflow:hidden;">
+                    <!-- 搜索栏 -->
+                    <div class="sat-search-bar">
+                        <input type="text" id="satellite-search-input"
+                               placeholder="🔍 搜索卫星名称/编号..."
+                               oninput="searchSatellite()"
+                               onkeydown="if(event.key==='Enter')searchSatellite()">
+                    </div>
+                    <!-- 卫星列表 -->
+                    <div id="satellite-list" style="flex:1;overflow-y:auto;">
+                        <div class="notam-empty">加载中...</div>
+                    </div>
+                </div>
+            </div>
+
             <!-- NOTAM 列表 -->
             <div class="sidebar-section" id="section-notams" style="flex:1;display:flex;flex-direction:column;overflow:hidden;min-height:150px;">
                 <div class="section-title" onclick="toggleSection('section-notams')">
@@ -121,8 +149,10 @@
         </div>
     </div>
 
-    <!-- Leaflet JS (本地) + 自定义 JS -->
-    <script src="static/leaflet/leaflet.js?v=11"></script>
+    <!-- Leaflet JS (本地) + satellite.js + 自定义 JS -->
+    <script src="static/leaflet/leaflet.js?v=13"></script>
+    <script src="static/js/lib/satellite.min.js"></script>
+    <script src="static/js/satellites.js?v=13"></script>
     <script src="static/js/map.js?v=13"></script>
 </body>
 </html>

@@ -943,3 +943,166 @@ html, body {
 ::-webkit-scrollbar-thumb:hover {
     background: var(--accent);
 }
+
+/* ============================================================
+   卫星追踪模块样式
+   ============================================================ */
+
+/* 搜索栏 */
+.sat-search-bar {
+    padding: 8px;
+    background: var(--bg-tertiary);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.sat-search-bar input {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.sat-search-bar input:focus {
+    border-color: #00E5FF;
+    box-shadow: 0 0 0 2px rgba(0, 229, 255, 0.15);
+}
+
+.sat-search-bar input::placeholder {
+    color: var(--text-muted);
+}
+
+/* 卫星列表项 */
+.sat-item {
+    transition: background 0.2s, transform 0.1s;
+    border-radius: 4px;
+}
+
+.sat-item:hover {
+    background: rgba(0, 229, 255, 0.1) !important;
+    transform: translateX(2px);
+}
+
+.sat-item:active {
+    background: rgba(0, 229, 255, 0.2) !important;
+}
+
+/* 卫星标记 */
+.satellite-marker {
+    background: transparent !important;
+    border: none !important;
+}
+
+.sat-marker {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    color: white;
+    box-shadow: 0 0 8px rgba(0, 229, 255, 0.6), 0 0 2px rgba(0, 0, 0, 0.5);
+    border: 1.5px solid rgba(255, 255, 255, 0.7);
+    animation: satellitePulse 2s ease-in-out infinite;
+}
+
+@keyframes satellitePulse {
+    0%, 100% {
+        box-shadow: 0 0 8px rgba(0, 229, 255, 0.6), 0 0 2px rgba(0, 0, 0, 0.5);
+    }
+    50% {
+        box-shadow: 0 0 14px rgba(0, 229, 255, 0.9), 0 0 4px rgba(0, 0, 0, 0.5);
+    }
+}
+
+/* 卫星弹窗 */
+.satellite-popup {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.sat-popup-header {
+    padding: 10px 14px;
+    color: white;
+    font-weight: 700;
+    font-size: 15px;
+    border-radius: 8px 8px 0 0;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.sat-popup-body {
+    padding: 8px 14px;
+}
+
+.sat-info-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 4px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    font-size: 12px;
+}
+
+.sat-info-row:last-child {
+    border-bottom: none;
+}
+
+.sat-label {
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+.sat-value {
+    color: var(--text-primary);
+    font-weight: 600;
+    text-align: right;
+    max-width: 60%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* 卫星按钮 */
+#btn-toggle-sat {
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+}
+
+#btn-toggle-sat.active {
+    background: rgba(0, 229, 255, 0.2);
+    border-color: #00E5FF;
+    color: #00E5FF;
+    box-shadow: 0 0 8px rgba(0, 229, 255, 0.3);
+}
+
+/* 卫星类别标题 */
+.sat-category-header {
+    padding: 6px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    margin-bottom: 4px;
+}
+
+/* 搭载载荷信息 */
+.popup-payload {
+    margin-top: 8px;
+    padding: 8px;
+    background: rgba(0, 229, 255, 0.05);
+    border-radius: 6px;
+    border-left: 3px solid #00E5FF;
+}
+
+.payload-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: #00E5FF;
+    margin-bottom: 4px;
+}
+
+.payload-desc {
+    font-size: 11px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+}
