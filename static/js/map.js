@@ -150,7 +150,7 @@ function enablePopupDrag() {
             }
         });
 
-        // 鼠标释放
+        // 鼠标释放 — 如果几乎没移动则视为点击，关闭弹窗
         document.addEventListener('mouseup', function(e) {
             if (!isDragging) return;
             isDragging = false;
@@ -158,6 +158,13 @@ function enablePopupDrag() {
             const popupEl = wrapper.querySelector('.leaflet-popup');
             if (popupEl) {
                 popupEl.classList.remove('dragging');
+            }
+
+            // 判断是否为点击（移动距离小于5像素）
+            const dx = Math.abs(e.clientX - startX);
+            const dy = Math.abs(e.clientY - startY);
+            if (dx < 5 && dy < 5) {
+                map.closePopup(popup);
             }
         });
 
@@ -204,6 +211,16 @@ function enablePopupDrag() {
             const popupEl = wrapper.querySelector('.leaflet-popup');
             if (popupEl) {
                 popupEl.classList.remove('dragging');
+            }
+
+            // 判断是否为点击（移动距离小于5像素）
+            const touch = e.changedTouches[0];
+            if (touch) {
+                const dx = Math.abs(touch.clientX - startX);
+                const dy = Math.abs(touch.clientY - startY);
+                if (dx < 5 && dy < 5) {
+                    map.closePopup(popup);
+                }
             }
         });
     });
