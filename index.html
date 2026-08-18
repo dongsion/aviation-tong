@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="航空通 - NOTAM 航空通告与火箭发射计划实时可视化系统">
+    <title>航空通 - NOTAM 航空通告 + 火箭发射实时地图</title>
+
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✈️</text></svg>">
+
+    <!-- Leaflet CSS (本地) -->
+    <link rel="stylesheet" href="static/leaflet/leaflet.css">
+
+    <!-- 自定义 CSS -->
+    <link rel="stylesheet" href="static/css/style.css">
+</head>
+<body>
+
+    <!-- ============================================================
+         顶栏
+         ============================================================ -->
+    <div class="top-bar">
+        <div class="logo">
+            <span class="icon">✈️</span>
+            <span>航空通</span>
+            <span class="subtitle">NOTAM 通告 + 火箭发射实时地图</span>
+        </div>
+        <div class="status">
+            <div class="status-item">
+                <span class="status-dot"></span>
+                <span>实时连接</span>
+            </div>
+            <div class="status-item">
+                NOTAM: <span id="stat-total" style="font-weight:700;color:var(--text-primary)">0</span>
+            </div>
+            <div class="status-item">
+                生效: <span id="stat-active" style="font-weight:700;color:#00e676">0</span>
+            </div>
+            <div class="status-item">
+                🚀发射: <span id="stat-launches" style="font-weight:700;color:#FFAB00">0</span>
+            </div>
+            <div class="status-item">
+                来源: <span id="stat-source" style="font-weight:700">N/A</span>
+            </div>
+            <div class="status-item">
+                更新: <span id="stat-update" style="font-weight:600">--</span>
+            </div>
+            <button class="btn-refresh" id="btn-refresh" onclick="manualRefresh()">
+                刷新数据
+            </button>
+        </div>
+    </div>
+
+    <!-- ============================================================
+         主布局: 侧边栏 + 地图
+         ============================================================ -->
+    <div class="main-container">
+
+        <!-- 侧边栏 -->
+        <div class="sidebar">
+
+            <!-- 图例区 -->
+            <div class="sidebar-section">
+                <div class="section-title">
+                    <span>🎨</span>
+                    <span>颜色说明</span>
+                </div>
+                <div class="section-content" style="max-height:320px;overflow-y:auto;">
+                    <div class="legend" id="legend">
+                        <div style="color:var(--text-muted);font-size:12px;padding:8px 0;">
+                            加载中...
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 发射计划列表 -->
+            <div class="sidebar-section" style="flex:1;display:flex;flex-direction:column;overflow:hidden;min-height:200px;">
+                <div class="section-title">
+                    <span>🚀</span>
+                    <span>火箭发射计划</span>
+                </div>
+                <div class="section-content" id="launch-list" style="flex:1;overflow-y:auto;">
+                    <div class="notam-empty">加载中...</div>
+                </div>
+            </div>
+
+            <!-- NOTAM 列表 -->
+            <div class="sidebar-section" style="flex:1;display:flex;flex-direction:column;overflow:hidden;min-height:150px;">
+                <div class="section-title">
+                    <span>📋</span>
+                    <span>NOTAM 列表</span>
+                </div>
+                <div class="section-content" id="notam-list" style="flex:1;overflow-y:auto;">
+                    <div class="notam-empty">加载中...</div>
+                </div>
+            </div>
+
+            <!-- 说明 -->
+            <div class="sidebar-section">
+                <div class="section-content" style="font-size:11px;color:var(--text-muted);line-height:1.6;">
+                    <div style="margin-bottom:4px;">
+                        <strong>提示:</strong> 点击图例可筛选区域类型或发射计划，点击列表项可定位到地图位置。
+                    </div>
+                    <div>发射数据来自 Launch Library 2，每 30 分钟自动更新。仅供参考。</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 地图区 -->
+        <div class="map-container">
+            <div id="map"></div>
+        </div>
+    </div>
+
+    <!-- Leaflet JS (本地) + 自定义 JS -->
+    <script src="static/leaflet/leaflet.js"></script>
+    <script src="static/js/map.js"></script>
+</body>
+</html>
