@@ -39,17 +39,25 @@ jobs:
         run: |
           python main.py
 
-      - name: 提交更新后的数据
+      - name: 提交更新后的数据和图片
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
-          # 检查是否有数据文件变更
-          if git diff --quiet data/; then
-            echo "数据无变化，跳过提交"
+          # 检查是否有数据文件或图片变更
+          CHANGED=false
+          if ! git diff --quiet data/; then
+            CHANGED=true
+          fi
+          if ! git diff --quiet static/images/launches/; then
+            CHANGED=true
+          fi
+
+          if [ "$CHANGED" = false ]; then
+            echo "数据和图片无变化，跳过提交"
           else
-            git add data/
-            git commit -m "自动更新 NOTAM 数据 $(date -u '+%Y-%m-%d %H:%M UTC')"
+            git add data/ static/images/launches/
+            git commit -m "自动更新 NOTAM 数据和发射图片 $(date -u '+%Y-%m-%d %H:%M UTC')"
             git push
           fi
 

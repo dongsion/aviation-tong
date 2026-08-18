@@ -430,16 +430,28 @@ function buildLaunchPopup(props, color) {
     const liveBadge = props.webcast_live ? '<span class="popup-badge" style="background:#ff1744;margin-left:4px;">🔴 直播中</span>' : '';
     const desc = props.mission_desc ? `<div class="popup-raw">${props.mission_desc}</div>` : '';
 
-    // 火箭/任务图片（懒加载 + 占位符 + 淡入）
-    const imgUrl = props.image_url || '';
-    const imgHtml = imgUrl
-        ? `<div class="popup-image-wrapper">
-            <div class="popup-image-loading">📊 加载中...</div>
-            <img src="${imgUrl}" alt="${props.name || ''}" class="popup-image" loading="lazy" style="opacity:0"
+    // 火箭/任务图片（本地缓存优先 + 远程回退 + 淡入）
+    const localImg = props.image_url || '';
+    const remoteImg = props.remote_image_url || '';
+    let imgHtml = '';
+
+    if (localImg) {
+        // 本地缓存图片 — 加载极快
+        imgHtml = `<div class="popup-image-wrapper">
+            <div class="popup-image-loading">🚀 加载中...</div>
+            <img src="${localImg}" alt="${props.name || ''}" class="popup-image" loading="eager" style="opacity:0"
+                onload="this.style.opacity='1';this.previousElementSibling.style.display='none'"
+                onerror="this.onerror=null;this.src='${remoteImg}';if(!this.src){this.parentElement.style.display='none'}">
+        </div>`;
+    } else if (remoteImg) {
+        // 没有本地缓存，直接用远程URL
+        imgHtml = `<div class="popup-image-wrapper">
+            <div class="popup-image-loading">🚀 加载中...</div>
+            <img src="${remoteImg}" alt="${props.name || ''}" class="popup-image" loading="lazy" style="opacity:0"
                 onload="this.style.opacity='1';this.previousElementSibling.style.display='none'"
                 onerror="this.parentElement.style.display='none'">
-        </div>`
-        : '';
+        </div>`;
+    }
 
     return `
         <div class="popup-content">

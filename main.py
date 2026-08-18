@@ -451,6 +451,7 @@ def launch_to_geojson(launch) -> dict:
         "window_end": launch.window_end,
         "slug": launch.slug,
         "image_url": launch.image_url,
+        "remote_image_url": getattr(launch, 'remote_image_url', ''),
         "webcast_live": launch.webcast_live,
     }
 
