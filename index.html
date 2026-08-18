@@ -10,11 +10,11 @@
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✈️</text></svg>">
 
     <!-- Leaflet CSS (本地) -->
-    <link rel="stylesheet" href="static/leaflet/leaflet.css?v=16">
+    <link rel="stylesheet" href="static/leaflet/leaflet.css?v=17">
     <!-- 自定义 CSS -->
-    <link rel="stylesheet" href="static/css/style.css?v=16">
+    <link rel="stylesheet" href="static/css/style.css?v=17">
     <!-- 付费功能 CSS -->
-    <link rel="stylesheet" href="static/css/premium.css?v=16">
+    <link rel="stylesheet" href="static/css/premium.css?v=17">
 </head>
 <body>
 
@@ -41,7 +41,7 @@
             </div>
 
             <!-- 状态信息 (可折叠) -->
-            <div class="sidebar-section" id="section-status">
+            <div class="sidebar-section collapsed" id="section-status">
                 <div class="section-title" onclick="toggleSection('section-status')">
                     <span>📊</span>
                     <span>状态信息</span>
@@ -84,7 +84,7 @@
             </div>
 
             <!-- 图例区 -->
-            <div class="sidebar-section" id="section-legend">
+            <div class="sidebar-section collapsed" id="section-legend">
                 <div class="section-title" onclick="toggleSection('section-legend')">
                     <span>🎨</span>
                     <span>颜色说明</span>
@@ -100,7 +100,7 @@
             </div>
 
             <!-- 发射计划列表 -->
-            <div class="sidebar-section" id="section-launches" style="flex:1;display:flex;flex-direction:column;overflow:hidden;min-height:200px;">
+            <div class="sidebar-section collapsed" id="section-launches" style="flex:1;display:flex;flex-direction:column;overflow:hidden;min-height:200px;">
                 <div class="section-title" onclick="toggleSection('section-launches')">
                     <span>🚀</span>
                     <span>火箭发射计划</span>
@@ -112,7 +112,7 @@
             </div>
 
             <!-- 卫星追踪 -->
-            <div class="sidebar-section" id="section-satellites" style="flex:1;display:flex;flex-direction:column;overflow:hidden;min-height:200px;">
+            <div class="sidebar-section collapsed" id="section-satellites" style="flex:1;display:flex;flex-direction:column;overflow:hidden;min-height:200px;">
                 <div class="section-title" onclick="toggleSection('section-satellites')">
                     <span>🛰️</span>
                     <span>卫星实时追踪</span>
@@ -134,7 +134,7 @@
             </div>
 
             <!-- NOTAM 列表 -->
-            <div class="sidebar-section" id="section-notams" style="flex:1;display:flex;flex-direction:column;overflow:hidden;min-height:150px;">
+            <div class="sidebar-section collapsed" id="section-notams" style="flex:1;display:flex;flex-direction:column;overflow:hidden;min-height:150px;">
                 <div class="section-title" onclick="toggleSection('section-notams')">
                     <span>📋</span>
                     <span>NOTAM 列表</span>
@@ -146,7 +146,7 @@
             </div>
 
             <!-- 付费功能面板 (Pro) -->
-            <div class="sidebar-section" id="section-premium">
+            <div class="sidebar-section collapsed" id="section-premium">
                 <div class="section-title" onclick="toggleSection('section-premium')">
                     <span>💎</span>
                     <span>高级功能</span>
@@ -186,7 +186,7 @@
             </div>
 
             <!-- 说明 -->
-            <div class="sidebar-section" id="section-info">
+            <div class="sidebar-section collapsed" id="section-info">
                 <div class="section-title" onclick="toggleSection('section-info')">
                     <span>💡</span>
                     <span>使用说明</span>
@@ -215,13 +215,13 @@
     </div>
 
     <!-- Leaflet JS (本地) + satellite.js + 自定义 JS -->
-    <script src="static/leaflet/leaflet.js?v=16"></script>
+    <script src="static/leaflet/leaflet.js?v=17"></script>
     <script src="static/js/lib/satellite.min.js"></script>
-    <script src="static/js/satellites.js?v=16"></script>
-    <script src="static/js/map.js?v=16"></script>
+    <script src="static/js/satellites.js?v=17"></script>
+    <script src="static/js/map.js?v=17"></script>
     <!-- 付费功能 JS -->
-    <script src="static/js/premium/subscription.js?v=16"></script>
-    <script src="static/js/premium/flight_plan.js?v=16"></script>
-    <script src="static/js/premium/satellite_pass.js?v=16"></script>
+    <script src="static/js/premium/subscription.js?v=17"></script>
+    <script src="static/js/premium/flight_plan.js?v=17"></script>
+    <script src="static/js/premium/satellite_pass.js?v=17"></script>
 </body>
 </html>
