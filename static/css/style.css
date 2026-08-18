@@ -513,27 +513,174 @@ html, body {
 }
 
 /* ============================================================
-   响应式
+   响应式 — 移动端适配
    ============================================================ */
 @media (max-width: 768px) {
-    .sidebar {
-        width: 100%;
-        min-width: 100%;
-        max-height: 40vh;
-        border-right: none;
+    /* 顶栏：改为自然流动，不再固定 */
+    .top-bar {
+        position: relative;
+        height: auto;
+        flex-direction: column;
+        align-items: stretch;
+        padding: 8px 12px;
+        gap: 6px;
+        box-shadow: none;
         border-bottom: 1px solid var(--border);
     }
 
-    .main-container {
-        flex-direction: column;
+    .top-bar .logo {
+        justify-content: center;
+        font-size: 17px;
+        gap: 6px;
+    }
+
+    .top-bar .logo .icon {
+        font-size: 20px;
     }
 
     .top-bar .subtitle {
         display: none;
     }
 
-    .top-bar .status .status-item:nth-child(1) {
+    .top-bar .status {
+        margin-left: 0;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 6px 12px;
+    }
+
+    .top-bar .status-item {
+        font-size: 12px;
+        gap: 4px;
+    }
+
+    /* 隐藏"实时连接"和"更新时间"，节省空间 */
+    .top-bar .status .status-item:nth-child(1),
+    .top-bar .status .status-item:nth-child(6) {
         display: none;
+    }
+
+    .top-bar .btn-refresh {
+        padding: 5px 12px;
+        font-size: 12px;
+    }
+
+    /* 主布局：上下分割，侧边栏可滚动 */
+    .main-container {
+        flex-direction: column;
+        height: auto;
+        flex: 1;
+        margin-top: 0;
+        padding-bottom: env(safe-area-inset-bottom, 0px);
+    }
+
+    .sidebar {
+        width: 100%;
+        min-width: 100%;
+        max-height: 45vh;
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+        flex-shrink: 0;
+    }
+
+    .sidebar-section .section-title {
+        padding: 10px 14px;
+        font-size: 13px;
+    }
+
+    .sidebar-section .section-content {
+        padding: 10px 12px;
+    }
+
+    /* 地图占满剩余空间 */
+    .map-container {
+        flex: 1;
+        min-height: 50vh;
+    }
+
+    /* Leaflet 缩放按钮 — 更大触摸区 */
+    .leaflet-control-zoom a {
+        width: 40px !important;
+        height: 40px !important;
+        line-height: 40px !important;
+        font-size: 18px !important;
+        border-radius: 8px !important;
+    }
+
+    .leaflet-control-zoom {
+        margin: 10px !important;
+    }
+
+    /* 归属信息 — 适配安全区 */
+    .leaflet-control-attribution {
+        margin-bottom: env(safe-area-inset-bottom, 0px) !important;
+        font-size: 10px !important;
+    }
+
+    /* Popup 适配 */
+    .popup-content {
+        min-width: 200px;
+        max-width: 300px;
+    }
+
+    /* 发射卡片 — 更紧凑 */
+    .launch-card {
+        padding: 8px 10px;
+    }
+
+    .launch-card .launch-name {
+        font-size: 12px;
+    }
+
+    .launch-card .launch-mission {
+        font-size: 11px;
+    }
+
+    .launch-card .launch-time {
+        font-size: 11px;
+    }
+
+    /* 图例 — 更紧凑 */
+    .legend-item {
+        padding: 6px;
+        gap: 8px;
+    }
+
+    .legend-color {
+        width: 20px;
+        height: 20px;
+    }
+
+    .legend-name {
+        font-size: 12px;
+    }
+
+    .legend-desc {
+        font-size: 10px;
+    }
+}
+
+/* 超小屏幕 (≤375px) */
+@media (max-width: 375px) {
+    .top-bar .logo {
+        font-size: 15px;
+    }
+
+    .top-bar .status {
+        gap: 4px 8px;
+    }
+
+    .top-bar .status-item {
+        font-size: 11px;
+    }
+}
+
+/* 移动端 body 布局：flex 纵向排列 */
+@media (max-width: 768px) {
+    html, body {
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
     }
 }
 
