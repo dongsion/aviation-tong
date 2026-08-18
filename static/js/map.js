@@ -187,9 +187,17 @@ function initMap() {
         maxZoom: 17,
     });
 
+    // 浅色地图瓦片
+    const lightLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://carto.com/">CARTO</a> | &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> | 航空通',
+        subdomains: 'abcd',
+        maxZoom: 19,
+    });
+
     // 图层切换控件
     L.control.layers({
         '🌙 暗色': darkLayer,
+        '☀️ 浅色': lightLayer,
         '🛰️ 卫星': satelliteLayer,
         '⛰️ 地形': terrainLayer,
     }, null, {
