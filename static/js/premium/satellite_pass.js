@@ -153,8 +153,8 @@ function onMapPickObserver(e) {
     const lat = e.latlng.lat;
     const lng = e.latlng.lng;
 
-    const latInput = document.getElementById('sp-observer-lat');
-    const lngInput = document.getElementById('sp-observer-lng');
+    const latInput = document.getElementById('sp-observer-lat') || document.getElementById('sp-lat');
+    const lngInput = document.getElementById('sp-observer-lng') || document.getElementById('sp-lng');
     if (latInput) latInput.value = lat.toFixed(4);
     if (lngInput) lngInput.value = lng.toFixed(4);
 
@@ -223,8 +223,8 @@ function hideSatPassHint() {
  * 主入口 - 执行过境预测
  */
 async function predictSatellitePasses() {
-    const latInput = document.getElementById('sp-observer-lat');
-    const lngInput = document.getElementById('sp-observer-lng');
+    const latInput = document.getElementById('sp-observer-lat') || document.getElementById('sp-lat');
+    const lngInput = document.getElementById('sp-observer-lng') || document.getElementById('sp-lng');
     const satSelect = document.getElementById('sp-satellite');
     const noradInput = document.getElementById('sp-norad-id');
     const daysSelect = document.getElementById('sp-days');

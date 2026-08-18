@@ -10,11 +10,11 @@
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✈️</text></svg>">
 
     <!-- Leaflet CSS (本地) -->
-    <link rel="stylesheet" href="static/leaflet/leaflet.css?v=15">
+    <link rel="stylesheet" href="static/leaflet/leaflet.css?v=16">
     <!-- 自定义 CSS -->
-    <link rel="stylesheet" href="static/css/style.css?v=15">
+    <link rel="stylesheet" href="static/css/style.css?v=16">
     <!-- 付费功能 CSS -->
-    <link rel="stylesheet" href="static/css/premium.css?v=15">
+    <link rel="stylesheet" href="static/css/premium.css?v=16">
 </head>
 <body>
 
@@ -165,19 +165,19 @@
                     </div>
                     <!-- 功能入口 -->
                     <div class="premium-features-grid">
-                        <button class="premium-feature-btn" onclick="openPremiumModal('subscription')">
+                        <button class="premium-feature-btn" onclick="openPremiumFeature('subscription')">
                             <span class="premium-feature-icon">📡</span>
                             <span class="premium-feature-label">NOTAM 订阅</span>
                         </button>
-                        <button class="premium-feature-btn" onclick="openPremiumModal('flight-plan')">
+                        <button class="premium-feature-btn" onclick="openPremiumFeature('flight-plan')">
                             <span class="premium-feature-icon">✈️</span>
                             <span class="premium-feature-label">飞行计划分析</span>
                         </button>
-                        <button class="premium-feature-btn" onclick="openPremiumModal('satellite-pass')">
+                        <button class="premium-feature-btn" onclick="openPremiumFeature('satellite-pass')">
                             <span class="premium-feature-icon">🛰️</span>
                             <span class="premium-feature-label">卫星过境预测</span>
                         </button>
-                        <button class="premium-feature-btn" onclick="openPremiumModal('api-docs')">
+                        <button class="premium-feature-btn" onclick="openPremiumFeature('api-docs')">
                             <span class="premium-feature-icon">🔌</span>
                             <span class="premium-feature-label">API 接口</span>
                         </button>
@@ -215,13 +215,13 @@
     </div>
 
     <!-- Leaflet JS (本地) + satellite.js + 自定义 JS -->
-    <script src="static/leaflet/leaflet.js?v=15"></script>
+    <script src="static/leaflet/leaflet.js?v=16"></script>
     <script src="static/js/lib/satellite.min.js"></script>
-    <script src="static/js/satellites.js?v=15"></script>
-    <script src="static/js/map.js?v=15"></script>
+    <script src="static/js/satellites.js?v=16"></script>
+    <script src="static/js/map.js?v=16"></script>
     <!-- 付费功能 JS -->
-    <script src="static/js/premium/subscription.js?v=15"></script>
-    <script src="static/js/premium/flight_plan.js?v=15"></script>
-    <script src="static/js/premium/satellite_pass.js?v=15"></script>
+    <script src="static/js/premium/subscription.js?v=16"></script>
+    <script src="static/js/premium/flight_plan.js?v=16"></script>
+    <script src="static/js/premium/satellite_pass.js?v=16"></script>
 </body>
 </html>

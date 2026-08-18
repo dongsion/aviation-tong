@@ -67,6 +67,221 @@ function showToast(message, type = 'info') {
 // ============================================================
 // 模态框辅助函数 (全局共享，供所有 premium 模块使用)
 // ============================================================
+
+// 功能路由: index.html 中 onclick="openPremiumModal('subscription')" 调用此函数
+function openPremiumFeature(featureName) {
+    switch(featureName) {
+        case 'subscription':
+            openSubscriptionPanel();
+            break;
+        case 'flight-plan':
+            openFlightPlanPanel();
+            break;
+        case 'satellite-pass':
+            openSatellitePassPanel();
+            break;
+        case 'api-docs':
+            openApiDocsPanel();
+            break;
+        default:
+            openPremiumModal('提示', '<p style="color:var(--text-muted);text-align:center;padding:20px 0;">功能开发中，敬请期待...</p>');
+    }
+}
+
+// NOTAM 订阅面板
+function openSubscriptionPanel() {
+    const subs = loadSubscriptions();
+    let listHtml = '';
+    if (subs.length === 0) {
+        listHtml = '<div class="notam-empty" style="padding:30px 0;">暂无订阅，点击下方按钮创建</div>';
+    } else {
+        subs.forEach(function(sub) {
+            var statusBadge = sub.enabled !== false
+                ? '<span style="color:#00e676">● 启用</span>'
+                : '<span style="color:#546E7A">● 暂停</span>';
+            listHtml +=
+                '<div class="subscription-card" style="border-left:3px solid ' + (sub.area_polygon ? '#00E5FF' : '#FFAB00') + ';">' +
+                    '<div style="display:flex;justify-content:space-between;align-items:center;">' +
+                        '<div style="font-weight:600;">' + escapeHtml(sub.name || '未命名') + '</div>' +
+                        statusBadge +
+                    '</div>' +
+                    '<div style="font-size:11px;color:var(--text-muted);margin-top:4px;">' +
+                        (sub.fir_codes && sub.fir_codes.length ? 'FIR: ' + escapeHtml(sub.fir_codes.join(', ')) : 'FIR: 全部') +
+                        (sub.keywords ? ' | 关键词: ' + escapeHtml(sub.keywords) : '') +
+                    '</div>' +
+                    '<div style="display:flex;gap:8px;margin-top:8px;">' +
+                        '<button class="btn-action" style="font-size:10px;padding:3px 8px;" onclick="toggleSubscription(\'' + escapeHtml(sub.id) + '\')">' + (sub.enabled !== false ? '暂停' : '启用') + '</button>' +
+                        '<button class="btn-action" style="font-size:10px;padding:3px 8px;" onclick="deleteSubscription(\'' + escapeHtml(sub.id) + '\')">删除</button>' +
+                    '</div>' +
+                '</div>';
+        });
+    }
+
+    var bodyHtml =
+        '<div id="subscription-panel">' +
+            listHtml +
+        '</div>' +
+        '<div style="display:flex;gap:8px;margin-top:12px;">' +
+            '<button class="btn-action" style="flex:1;" onclick="openSubscriptionForm()">+ 新建订阅</button>' +
+            '<button class="btn-action" style="flex:1;" onclick="startMapBoxSubscription()">🗺️ 地图框选</button>' +
+        '</div>' +
+        '<div style="font-size:10px;color:var(--text-muted);margin-top:8px;text-align:center;">订阅的 NOTAM 更新后自动推送通知</div>';
+
+    openPremiumModal('📡 NOTAM 订阅', bodyHtml);
+}
+
+// 飞行计划分析面板
+function openFlightPlanPanel() {
+    var airportOptions = '';
+    if (typeof CHINA_AIRPORTS !== 'undefined') {
+        CHINA_AIRPORTS.forEach(function(a) {
+            airportOptions += '<option value="' + escapeHtml(a.icao) + '">' + escapeHtml(a.icao) + ' - ' + escapeHtml(a.name) + '</option>';
+        });
+    }
+
+    var bodyHtml =
+        '<div class="flight-plan-form">' +
+            '<div class="form-row">' +
+                '<div class="form-field">' +
+                    '<label class="form-field-label">起飞机场 (ICAO)</label>' +
+                    '<input type="text" class="form-input" id="fp-departure" placeholder="如 ZBAA" list="airport-list" autocomplete="off">' +
+                '</div>' +
+                '<div class="form-field">' +
+                    '<label class="form-field-label">降落机场 (ICAO)</label>' +
+                    '<input type="text" class="form-input" id="fp-arrival" placeholder="如 ZSSS" list="airport-list" autocomplete="off">' +
+                '</div>' +
+            '</div>' +
+            '<datalist id="airport-list">' + airportOptions + '</datalist>' +
+            '<div class="form-row">' +
+                '<div class="form-field">' +
+                    '<label class="form-field-label">起飞时间</label>' +
+                    '<input type="datetime-local" class="form-input" id="fp-time">' +
+                '</div>' +
+                '<div class="form-field">' +
+                    '<label class="form-field-label">巡航高度 (英尺)</label>' +
+                    '<input type="number" class="form-input" id="fp-altitude" placeholder="35000" value="35000">' +
+                '</div>' +
+            '</div>' +
+            '<button class="btn-action" style="width:100%;margin-top:8px;" onclick="analyzeFlightPlan()">✈️ 分析 NOTAM 影响</button>' +
+        '</div>' +
+        '<div id="fp-result" style="margin-top:12px;"></div>';
+
+    openPremiumModal('✈️ 飞行计划分析', bodyHtml);
+
+    // 设置默认时间
+    setTimeout(function() {
+        var timeInput = document.getElementById('fp-time');
+        if (timeInput && !timeInput.value) {
+            var now = new Date();
+            now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+            timeInput.value = now.toISOString().slice(0, 16);
+        }
+        // 初始化自动补全
+        if (typeof initAirportAutocomplete === 'function') {
+            initAirportAutocomplete();
+        }
+    }, 100);
+}
+
+// 卫星过境预测面板
+function openSatellitePassPanel() {
+    var satOptions = '';
+    if (typeof satelliteData !== 'undefined' && satelliteData.length > 0) {
+        var categories = {};
+        satelliteData.forEach(function(s) {
+            var cat = s.category || 'other';
+            if (!categories[cat]) categories[cat] = [];
+            categories[cat].push(s);
+        });
+        for (var cat in categories) {
+            satOptions += '<optgroup label="' + escapeHtml(cat) + '">';
+            categories[cat].slice(0, 20).forEach(function(s) {
+                satOptions += '<option value="' + escapeHtml(String(s.norad_id)) + '">' + escapeHtml(s.name) + '</option>';
+            });
+            satOptions += '</optgroup>';
+        }
+    } else {
+        satOptions = '<option value="">请先加载卫星数据</option>';
+    }
+
+    var bodyHtml =
+        '<div class="flight-plan-form">' +
+            '<div class="form-row">' +
+                '<div class="form-field">' +
+                    '<label class="form-field-label">观察者纬度</label>' +
+                    '<input type="number" class="form-input" id="sp-lat" placeholder="39.9" step="0.0001">' +
+                '</div>' +
+                '<div class="form-field">' +
+                    '<label class="form-field-label">观察者经度</label>' +
+                    '<input type="number" class="form-input" id="sp-lng" placeholder="116.4" step="0.0001">' +
+                '</div>' +
+            '</div>' +
+            '<div class="form-field">' +
+                '<label class="form-field-label">选择卫星</label>' +
+                '<select class="form-select" id="sp-satellite">' + satOptions + '</select>' +
+            '</div>' +
+            '<div class="form-row">' +
+                '<div class="form-field">' +
+                    '<label class="form-field-label">预测天数</label>' +
+                    '<select class="form-select" id="sp-days">' +
+                        '<option value="1">1 天</option>' +
+                        '<option value="3" selected>3 天</option>' +
+                        '<option value="7">7 天</option>' +
+                    '</select>' +
+                '</div>' +
+                '<div class="form-field" style="display:flex;align-items:flex-end;">' +
+                    '<button class="btn-action" style="width:100%;" onclick="toggleMapPickMode()">🗺️ 地图选取</button>' +
+                '</div>' +
+            '</div>' +
+            '<button class="btn-action" style="width:100%;margin-top:8px;" onclick="predictSatellitePasses()">🛰️ 预测过境</button>' +
+        '</div>' +
+        '<div id="sp-result" style="margin-top:12px;"></div>';
+
+    openPremiumModal('🛰️ 卫星过境预测', bodyHtml);
+}
+
+// API 接口文档面板
+function openApiDocsPanel() {
+    var bodyHtml =
+        '<div style="font-size:12px;line-height:1.8;color:var(--text-secondary);">' +
+            '<div style="margin-bottom:12px;color:var(--text-primary);font-weight:600;">RESTful API 端点</div>' +
+            '<div style="margin-bottom:8px;padding:8px;background:rgba(0,0,0,0.2);border-radius:6px;">' +
+                '<div style="color:#00e676;font-weight:600;">GET /api/v1/health</div>' +
+                '<div style="color:var(--text-muted);">健康检查 (无需认证)</div>' +
+            '</div>' +
+            '<div style="margin-bottom:8px;padding:8px;background:rgba(0,0,0,0.2);border-radius:6px;">' +
+                '<div style="color:#00e676;font-weight:600;">GET /api/v1/notams</div>' +
+                '<div style="color:var(--text-muted);">NOTAM 列表 (支持 ?type=&active=&bbox= 过滤)</div>' +
+            '</div>' +
+            '<div style="margin-bottom:8px;padding:8px;background:rgba(0,0,0,0.2);border-radius:6px;">' +
+                '<div style="color:#00e676;font-weight:600;">GET /api/v1/launches</div>' +
+                '<div style="color:var(--text-muted);">火箭发射计划</div>' +
+            '</div>' +
+            '<div style="margin-bottom:8px;padding:8px;background:rgba(0,0,0,0.2);border-radius:6px;">' +
+                '<div style="color:#00e676;font-weight:600;">GET /api/v1/satellites</div>' +
+                '<div style="color:var(--text-muted);">卫星数据</div>' +
+            '</div>' +
+            '<div style="margin-bottom:8px;padding:8px;background:rgba(0,0,0,0.2);border-radius:6px;">' +
+                '<div style="color:#FFAB00;font-weight:600;">POST /api/v1/flight-plan/analyze</div>' +
+                '<div style="color:var(--text-muted);">飞行计划 NOTAM 影响分析 (PRO+)</div>' +
+            '</div>' +
+            '<div style="margin-bottom:8px;padding:8px;background:rgba(0,0,0,0.2);border-radius:6px;">' +
+                '<div style="color:#FFAB00;font-weight:600;">GET/POST /api/v1/subscriptions</div>' +
+                '<div style="color:var(--text-muted);">订阅管理 (PRO+)</div>' +
+            '</div>' +
+            '<div style="margin-top:12px;padding-top:8px;border-top:1px solid rgba(255,255,255,0.1);">' +
+                '<div style="font-weight:600;color:var(--text-primary);margin-bottom:4px;">认证方式</div>' +
+                '<div style="color:var(--text-muted);">请求头添加: <code style="background:rgba(0,0,0,0.3);padding:2px 6px;border-radius:3px;">X-API-Key: your_api_key</code></div>' +
+            '</div>' +
+            '<div style="margin-top:12px;">' +
+                '<div style="font-weight:600;color:var(--text-primary);margin-bottom:4px;">权限等级</div>' +
+                '<div style="color:var(--text-muted);">FREE: 基础查询 | PRO: 1000次/月 | TEAM: 10万次/月</div>' +
+            '</div>' +
+        '</div>';
+
+    openPremiumModal('🔌 API 接口文档', bodyHtml);
+}
+
 function openPremiumModal(title, bodyHtml, footerHtml) {
     closeModal();
 
