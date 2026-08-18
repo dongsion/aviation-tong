@@ -106,6 +106,18 @@ function init() {
     if (typeof initSatellites === 'function') {
         initSatellites();
     }
+    // 初始化收藏夹
+    if (typeof initFavorites === 'function') {
+        initFavorites();
+    }
+    // 初始化通知
+    if (typeof initNotifications === 'function') {
+        initNotifications();
+    }
+    // 初始化 PWA
+    if (typeof initPWA === 'function') {
+        initPWA();
+    }
     // 页面可见性检测 — 后台标签暂停自动刷新，节省带宽
     document.addEventListener('visibilitychange', () => {
         if (document.hidden) {
@@ -157,10 +169,32 @@ function initMap() {
     });
 
     // 原生暗色瓦片 — 无需 CSS filter，移动端性能提升 5x+
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png', {
+    const darkLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="https://carto.com/">CARTO</a> | &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> | 航空通',
         subdomains: 'abcd',
         maxZoom: 19,
+    }).addTo(map);
+
+    // 卫星图瓦片
+    const satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+        attribution: '&copy; Esri World Imagery | 航空通',
+        maxZoom: 19,
+    });
+
+    // 地形图瓦片
+    const terrainLayer = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://opentopomap.org">OpenTopoMap</a> | 航空通',
+        maxZoom: 17,
+    });
+
+    // 图层切换控件
+    L.control.layers({
+        '🌙 暗色': darkLayer,
+        '🛰️ 卫星': satelliteLayer,
+        '⛰️ 地形': terrainLayer,
+    }, null, {
+        position: 'topright',
+        collapsed: true,
     }).addTo(map);
 
     notamLayer = L.layerGroup().addTo(map);
@@ -694,17 +728,36 @@ function renderNotamList() {
 
     // 使用 DocumentFragment 减少 DOM 回流
     const fragment = document.createDocumentFragment();
+    const now = Date.now();
     features.forEach(feature => {
         const props = feature.properties || {};
         const notamType = props.type || 'other';
         const config = TYPE_CONFIG[notamType] || TYPE_CONFIG.other;
 
+        // 计算到期倒计时
+        let expiryClass = '';
+        let countdownBadge = '';
+        if (props.end) {
+            const endTime = new Date(props.end).getTime();
+            const hoursLeft = (endTime - now) / 3600000;
+            if (hoursLeft >= 0 && hoursLeft < 1) {
+                expiryClass = 'notam-expiring-1h';
+                countdownBadge = `<span class="notam-countdown-badge urgent">${Math.ceil(hoursLeft * 60)}m</span>`;
+            } else if (hoursLeft >= 1 && hoursLeft < 6) {
+                expiryClass = 'notam-expiring-6h';
+                countdownBadge = `<span class="notam-countdown-badge warn">${Math.floor(hoursLeft)}h</span>`;
+            } else if (hoursLeft >= 6 && hoursLeft < 24) {
+                expiryClass = 'notam-expiring-24h';
+                countdownBadge = `<span class="notam-countdown-badge info">${Math.floor(hoursLeft)}h</span>`;
+            }
+        }
+
         const card = document.createElement('div');
-        card.className = 'notam-card';
+        card.className = `notam-card ${expiryClass}`;
         card.style.borderLeftColor = config.color;
         card.dataset.code = props.notam_code || '';
         card.innerHTML = `
-            <div class="notam-code">${escapeHtml(props.notam_code || 'N/A')}</div>
+            <div class="notam-code">${escapeHtml(props.notam_code || 'N/A')} ${countdownBadge}</div>
             <div class="notam-type">${escapeHtml(config.name)}</div>
             <div class="notam-time">${escapeHtml(props.start || '')} ~ ${escapeHtml(props.end || '')}</div>
             <span class="notam-fir">${escapeHtml(props.fir || '')}</span>

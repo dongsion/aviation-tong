@@ -15,6 +15,11 @@
     <link rel="stylesheet" href="static/css/style.css?v=19">
     <!-- 付费功能 CSS -->
     <link rel="stylesheet" href="static/css/premium.css?v=19">
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0a1929">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 </head>
 <body>
 
@@ -76,9 +81,23 @@
                         <button class="btn-action" id="btn-toggle-sat" onclick="toggleSatellites()">
                             🛰️ 卫星
                         </button>
-                        <button class="btn-action" id="btn-refresh" onclick="manualRefresh()">
-                            🔄 刷新数据
+                        <button class="btn-action" id="btn-toggle-flight" onclick="toggleFlights()">
+                            ✈️ 航班
                         </button>
+                        <button class="btn-action" id="btn-refresh" onclick="manualRefresh()">
+                            🔄 刷新
+                        </button>
+                    </div>
+                    <div class="status-grid" style="margin-top:6px;">
+                        <div class="status-cell">
+                            ✈️航班: <span id="stat-flights" style="font-weight:700;color:#00E5FF">0</span>
+                        </div>
+                        <div class="status-cell">
+                            ⭐收藏: <span id="stat-favorites" style="font-weight:700;color:#FFD700">0</span>
+                        </div>
+                    </div>
+                    <div class="notification-toggle">
+                        <button class="notification-toggle-btn" id="btn-notify" onclick="requestNotificationPermission()">🔔 开启通知</button>
                     </div>
                 </div>
             </div>
@@ -107,11 +126,15 @@
                     <span class="section-arrow">▼</span>
                 </div>
                 <div class="section-content" style="flex:1;overflow-y:auto;display:flex;flex-direction:column;">
-                    <!-- 国家筛选 -->
+                    <!-- 国家筛选 + 导出 -->
                     <div class="sat-search-bar" style="display:flex;gap:4px;">
                         <select id="launch-country-filter" class="form-select" style="flex:1;font-size:11px;padding:4px 6px;" onchange="filterLaunchesByCountry()">
                             <option value="">🌍 全部国家</option>
                         </select>
+                    </div>
+                    <div class="export-buttons">
+                        <button class="export-btn" onclick="exportLaunchData('csv')">📊 CSV</button>
+                        <button class="export-btn" onclick="exportLaunchData('json')">📄 JSON</button>
                     </div>
                     <div id="launch-list" style="flex:1;overflow-y:auto;">
                         <div class="notam-empty">加载中...</div>
@@ -157,8 +180,59 @@
                     <div class="sat-search-bar" style="padding:6px 10px;">
                         <input type="text" id="notam-search-input" class="sat-search-input" placeholder="🔍 搜索 NOTAM 编号/情报区..." oninput="filterNotamsBySearch()">
                     </div>
+                    <!-- 导出 -->
+                    <div class="export-buttons" style="padding:0 10px 4px;">
+                        <button class="export-btn" onclick="exportNotamData('csv')">📊 CSV</button>
+                        <button class="export-btn" onclick="exportNotamData('json')">📄 JSON</button>
+                    </div>
                     <div id="notam-list" style="flex:1;overflow-y:auto;">
                         <div class="notam-empty">加载中...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 实时航班追踪 -->
+            <div class="sidebar-section collapsed" id="section-flights" style="flex:1;display:flex;flex-direction:column;overflow:hidden;min-height:200px;">
+                <div class="section-title" onclick="toggleSection('section-flights')">
+                    <span>✈️</span>
+                    <span>实时航班追踪</span>
+                    <span class="section-arrow">▼</span>
+                </div>
+                <div class="section-content" style="flex:1;display:flex;flex-direction:column;overflow:hidden;">
+                    <div class="sat-search-bar" style="padding:6px 10px;">
+                        <input type="text" id="flight-search-input" placeholder="🔍 搜索航班号/ICAO..." oninput="searchFlights()" style="width:100%;">
+                    </div>
+                    <div id="flight-list" style="flex:1;overflow-y:auto;">
+                        <div class="notam-empty">点击"✈️航班"按钮开启追踪</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 收藏夹 -->
+            <div class="sidebar-section collapsed" id="section-favorites">
+                <div class="section-title" onclick="toggleSection('section-favorites')">
+                    <span>⭐</span>
+                    <span>收藏夹</span>
+                    <span class="section-arrow">▼</span>
+                </div>
+                <div class="section-content" id="favorite-list">
+                    <div class="notam-empty">暂无收藏</div>
+                </div>
+            </div>
+
+            <!-- 机场查询 -->
+            <div class="sidebar-section collapsed" id="section-airport">
+                <div class="section-title" onclick="toggleSection('section-airport')">
+                    <span>🏢</span>
+                    <span>机场信息查询</span>
+                    <span class="section-arrow">▼</span>
+                </div>
+                <div class="section-content">
+                    <div class="sat-search-bar" style="padding:6px 10px;">
+                        <input type="text" id="airport-search-input" placeholder="ICAO/IATA 代码或城市名..." onkeydown="if(event.key==='Enter')searchAirport()" style="width:100%;">
+                    </div>
+                    <div style="padding:4px 10px;font-size:11px;color:var(--text-muted);">
+                        支持: ZBAA, PEK, KLAX, LHR, RJTT 等
                     </div>
                 </div>
             </div>
@@ -198,6 +272,30 @@
                         <button class="premium-feature-btn" onclick="openPremiumFeature('api-docs')">
                             <span class="premium-feature-icon">🔌</span>
                             <span class="premium-feature-label">API 接口</span>
+                        </button>
+                        <button class="premium-feature-btn" onclick="openRoutePlanner()">
+                            <span class="premium-feature-icon">🛫</span>
+                            <span class="premium-feature-label">智能航线避让</span>
+                        </button>
+                        <button class="premium-feature-btn" onclick="openNotamImpact()">
+                            <span class="premium-feature-icon">🔍</span>
+                            <span class="premium-feature-label">NOTAM影响分析</span>
+                        </button>
+                        <button class="premium-feature-btn" onclick="openComparisonView()">
+                            <span class="premium-feature-icon">📊</span>
+                            <span class="premium-feature-label">多区域对比</span>
+                        </button>
+                        <button class="premium-feature-btn" onclick="openTeamAnnotations()">
+                            <span class="premium-feature-icon">👥</span>
+                            <span class="premium-feature-label">团队标注</span>
+                        </button>
+                        <button class="premium-feature-btn" onclick="openHistorySearch()">
+                            <span class="premium-feature-icon">📜</span>
+                            <span class="premium-feature-label">历史NOTAM检索</span>
+                        </button>
+                        <button class="premium-feature-btn" onclick="openApiDashboard()">
+                            <span class="premium-feature-icon">📈</span>
+                            <span class="premium-feature-label">API仪表盘</span>
                         </button>
                     </div>
                 </div>
@@ -241,10 +339,22 @@
     <script src="static/leaflet/leaflet.js?v=19" defer></script>
     <script src="static/js/lib/satellite.min.js" defer></script>
     <script src="static/js/satellites.js?v=19" defer></script>
+    <script src="static/js/flights.js?v=19" defer></script>
+    <script src="static/js/favorites.js?v=19" defer></script>
+    <script src="static/js/export_data.js?v=19" defer></script>
+    <script src="static/js/notifications.js?v=19" defer></script>
+    <script src="static/js/airport_info.js?v=19" defer></script>
+    <script src="static/js/pwa.js?v=19" defer></script>
     <script src="static/js/map.js?v=19" defer></script>
     <!-- 付费功能 JS -->
     <script src="static/js/premium/subscription.js?v=19" defer></script>
     <script src="static/js/premium/flight_plan.js?v=19" defer></script>
     <script src="static/js/premium/satellite_pass.js?v=19" defer></script>
+    <script src="static/js/premium/route_planner.js?v=19" defer></script>
+    <script src="static/js/premium/notam_impact.js?v=19" defer></script>
+    <script src="static/js/premium/comparison.js?v=19" defer></script>
+    <script src="static/js/premium/team_annotations.js?v=19" defer></script>
+    <script src="static/js/premium/history_search.js?v=19" defer></script>
+    <script src="static/js/premium/api_dashboard.js?v=19" defer></script>
 </body>
 </html>

@@ -1,0 +1,27 @@
+{
+  "name": "航空通 - NOTAM 航空通告与火箭发射可视化",
+  "short_name": "航空通",
+  "description": "NOTAM 航空通告 + 火箭发射计划 + 卫星实时追踪 + 航班追踪",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0a1929",
+  "theme_color": "#0a1929",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✈️</text></svg>",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✈️</text></svg>",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["navigation", "travel", "utilities"],
+  "lang": "zh-CN",
+  "scope": "./"
+}
