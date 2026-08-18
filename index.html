@@ -10,11 +10,11 @@
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✈️</text></svg>">
 
     <!-- Leaflet CSS (本地) -->
-    <link rel="stylesheet" href="static/leaflet/leaflet.css?v=17">
+    <link rel="stylesheet" href="static/leaflet/leaflet.css?v=18">
     <!-- 自定义 CSS -->
-    <link rel="stylesheet" href="static/css/style.css?v=17">
+    <link rel="stylesheet" href="static/css/style.css?v=18">
     <!-- 付费功能 CSS -->
-    <link rel="stylesheet" href="static/css/premium.css?v=17">
+    <link rel="stylesheet" href="static/css/premium.css?v=18">
 </head>
 <body>
 
@@ -106,8 +106,16 @@
                     <span>火箭发射计划</span>
                     <span class="section-arrow">▼</span>
                 </div>
-                <div class="section-content" id="launch-list" style="flex:1;overflow-y:auto;">
-                    <div class="notam-empty">加载中...</div>
+                <div class="section-content" style="flex:1;overflow-y:auto;display:flex;flex-direction:column;">
+                    <!-- 国家筛选 -->
+                    <div class="sat-search-bar" style="display:flex;gap:4px;">
+                        <select id="launch-country-filter" class="form-select" style="flex:1;font-size:11px;padding:4px 6px;" onchange="filterLaunchesByCountry()">
+                            <option value="">🌍 全部国家</option>
+                        </select>
+                    </div>
+                    <div id="launch-list" style="flex:1;overflow-y:auto;">
+                        <div class="notam-empty">加载中...</div>
+                    </div>
                 </div>
             </div>
 
@@ -119,12 +127,16 @@
                     <span class="section-arrow">▼</span>
                 </div>
                 <div class="section-content" style="flex:1;display:flex;flex-direction:column;overflow:hidden;">
-                    <!-- 搜索栏 -->
-                    <div class="sat-search-bar">
+                    <!-- 搜索栏 + 类别筛选 -->
+                    <div class="sat-search-bar" style="display:flex;gap:4px;">
                         <input type="text" id="satellite-search-input"
                                placeholder="🔍 搜索卫星名称/编号..."
                                oninput="searchSatellite()"
-                               onkeydown="if(event.key==='Enter')searchSatellite()">
+                               onkeydown="if(event.key==='Enter')searchSatellite()"
+                               style="flex:1;">
+                        <select id="sat-category-filter" class="form-select" style="width:auto;font-size:11px;padding:4px 6px;" onchange="filterSatellitesByCategory()">
+                            <option value="">全部</option>
+                        </select>
                     </div>
                     <!-- 卫星列表 -->
                     <div id="satellite-list" style="flex:1;overflow-y:auto;">
@@ -215,13 +227,13 @@
     </div>
 
     <!-- Leaflet JS (本地) + satellite.js + 自定义 JS -->
-    <script src="static/leaflet/leaflet.js?v=17"></script>
+    <script src="static/leaflet/leaflet.js?v=18"></script>
     <script src="static/js/lib/satellite.min.js"></script>
-    <script src="static/js/satellites.js?v=17"></script>
-    <script src="static/js/map.js?v=17"></script>
+    <script src="static/js/satellites.js?v=18"></script>
+    <script src="static/js/map.js?v=18"></script>
     <!-- 付费功能 JS -->
-    <script src="static/js/premium/subscription.js?v=17"></script>
-    <script src="static/js/premium/flight_plan.js?v=17"></script>
-    <script src="static/js/premium/satellite_pass.js?v=17"></script>
+    <script src="static/js/premium/subscription.js?v=18"></script>
+    <script src="static/js/premium/flight_plan.js?v=18"></script>
+    <script src="static/js/premium/satellite_pass.js?v=18"></script>
 </body>
 </html>

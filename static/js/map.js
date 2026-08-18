@@ -33,6 +33,7 @@ let notamLayer = null;
 let launchLayer = null;
 let allFeatures = [];
 let allLaunches = [];
+let launchCountryFilter = ''; // 发射国家筛选
 let activeTypes = new Set();
 let showLaunches = true;
 let lastUpdate = null;
@@ -311,6 +312,7 @@ async function loadData() {
         renderLegend();
         renderNotamList();
         renderLaunchList();
+        updateLaunchCountryFilter();
         renderMapFeatures();
         renderLaunchMarkers();
         updateStatusBar();
@@ -699,8 +701,17 @@ function renderLaunchList() {
         return;
     }
 
+    // 国家筛选
+    let filtered = allLaunches;
+    if (launchCountryFilter) {
+        filtered = filtered.filter(f => {
+            const cc = (f.properties || {}).country_code || '';
+            return cc === launchCountryFilter;
+        });
+    }
+
     // 按发射时间排序(最近的在前)
-    const sorted = [...allLaunches].sort((a, b) => {
+    const sorted = [...filtered].sort((a, b) => {
         const ta = (a.properties || {}).net || '';
         const tb = (b.properties || {}).net || '';
         return ta.localeCompare(tb);
@@ -739,6 +750,57 @@ function renderLaunchList() {
             }
         });
     });
+}
+
+// 更新发射国家筛选下拉框
+function updateLaunchCountryFilter() {
+    const select = document.getElementById('launch-country-filter');
+    if (!select) return;
+
+    // 收集所有国家代码及数量
+    const countryCounts = {};
+    allLaunches.forEach(f => {
+        const cc = (f.properties || {}).country_code || '';
+        if (cc) {
+            countryCounts[cc] = (countryCounts[cc] || 0) + 1;
+        }
+    });
+
+    // 国家中文名映射
+    const COUNTRY_NAME_CN = {
+        'USA': '美国', 'CHN': '中国', 'RUS': '俄罗斯', 'JPN': '日本', 'IND': '印度',
+        'GUF': '法属圭亚那', 'NZL': '新西兰', 'KAZ': '哈萨克斯坦', 'KOR': '韩国', 'GBR': '英国',
+        'NOR': '挪威', 'SWE': '瑞典', 'BRA': '巴西', 'OMN': '阿曼', 'AUS': '澳大利亚',
+        'IRN': '伊朗', 'ISR': '以色列', 'FRA': '法国', 'DEU': '德国', 'ITA': '意大利',
+        'CAN': '加拿大', 'ESP': '西班牙', 'UKR': '乌克兰', 'IDN': '印度尼西亚', 'MEX': '墨西哥',
+        'ZAF': '南非', 'TUR': '土耳其', 'KWT': '科威特', 'SAU': '沙特', 'ARE': '阿联酋',
+        'PRK': '朝鲜', 'VNM': '越南', 'THA': '泰国', 'MYS': '马来西亚', 'PHL': '菲律宾',
+        'PAK': '巴基斯坦', 'BGD': '孟加拉国', 'LKA': '斯里兰卡', 'EGY': '埃及', 'DZK': '阿尔及利亚',
+        'ARG': '阿根廷', 'CHL': '智利', 'PER': '秘鲁', 'COL': '哥伦比亚',
+    };
+
+    // 排序：按数量降序
+    const sortedCountries = Object.entries(countryCounts).sort((a, b) => b[1] - a[1]);
+
+    let html = '<option value="">🌍 全部国家</option>';
+    sortedCountries.forEach(([cc, count]) => {
+        const name = COUNTRY_NAME_CN[cc] || cc;
+        const flag = getFlag(cc, 16);
+        html += `<option value="${escapeHtml(cc)}">${flag.replace(/<img[^>]*>/, '')} ${escapeHtml(name)} (${count})</option>`;
+    });
+
+    // 保留当前选中值
+    const currentVal = select.value;
+    select.innerHTML = html;
+    if (currentVal && [...select.options].some(o => o.value === currentVal)) {
+        select.value = currentVal;
+    }
+}
+
+function filterLaunchesByCountry() {
+    const select = document.getElementById('launch-country-filter');
+    if (select) launchCountryFilter = select.value;
+    renderLaunchList();
 }
 
 function highlightLaunchInList(slug) {

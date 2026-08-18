@@ -186,10 +186,17 @@ function updateSatelliteList() {
         return;
     }
 
+    // 更新类别筛选下拉框
+    updateSatCategoryFilter();
+
+    // 获取当前选中的类别
+    const catFilter = (document.getElementById('sat-category-filter') || {}).value || '';
+
     // 按类别分组
     const byCategory = {};
     for (const sat of satelliteData) {
         const cat = sat.category || 'other';
+        if (catFilter && cat !== catFilter) continue;
         if (!byCategory[cat]) byCategory[cat] = [];
         byCategory[cat].push(sat);
     }
@@ -214,7 +221,39 @@ function updateSatelliteList() {
         }
     }
 
+    if (Object.keys(byCategory).length === 0) {
+        html = '<div class="notam-empty">该类别暂无卫星</div>';
+    }
+
     listEl.innerHTML = html;
+}
+
+// 更新卫星类别筛选下拉框
+function updateSatCategoryFilter() {
+    const select = document.getElementById('sat-category-filter');
+    if (!select) return;
+
+    const catCounts = {};
+    for (const sat of satelliteData) {
+        const cat = sat.category || 'other';
+        catCounts[cat] = (catCounts[cat] || 0) + 1;
+    }
+
+    let html = '<option value="">全部</option>';
+    for (const [cat, count] of Object.entries(catCounts)) {
+        const config = SAT_CATEGORY_CONFIG[cat] || { name: '其他' };
+        html += `<option value="${escapeHtml(cat)}">${escapeHtml(config.name)} (${count})</option>`;
+    }
+
+    const currentVal = select.value;
+    select.innerHTML = html;
+    if (currentVal && [...select.options].some(o => o.value === currentVal)) {
+        select.value = currentVal;
+    }
+}
+
+function filterSatellitesByCategory() {
+    updateSatelliteList();
 }
 
 /**
