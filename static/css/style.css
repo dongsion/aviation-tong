@@ -541,8 +541,8 @@ html, body {
 @media (max-width: 768px) {
     /* 顶栏：Logo 行 + 紧凑统计条 */
     .top-bar {
-        position: relative;
-        height: auto;
+        position: relative !important;
+        height: auto !important;
         flex-direction: column;
         align-items: stretch;
         padding: 6px 12px;
@@ -594,17 +594,17 @@ html, body {
 
     /* 主布局：自然流动 */
     .main-container {
-        display: block;
-        height: auto;
-        margin-top: 0;
+        display: block !important;
+        height: auto !important;
+        margin-top: 0 !important;
         padding-bottom: env(safe-area-inset-bottom, 0px);
     }
 
     .sidebar {
-        width: 100%;
-        min-width: 100%;
-        max-height: 45vh;
-        height: auto;
+        width: 100% !important;
+        min-width: 100% !important;
+        max-height: 45vh !important;
+        height: auto !important;
         border-right: none;
         border-bottom: 1px solid var(--border);
         overflow-y: auto;
