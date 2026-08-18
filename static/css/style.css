@@ -604,10 +604,12 @@ html, body {
     .sidebar {
         width: 100%;
         min-width: 100%;
-        max-height: 45vh;
+        max-height: 50vh;
+        height: auto;
         border-right: none;
         border-bottom: 1px solid var(--border);
-        flex-shrink: 0;
+        flex: 0 0 auto;
+        overflow-y: auto;
     }
 
     .sidebar-section .section-title {
@@ -621,7 +623,7 @@ html, body {
 
     /* 地图占满剩余空间 */
     .map-container {
-        flex: 1;
+        flex: 1 1 auto;
         min-height: 50vh;
     }
 
