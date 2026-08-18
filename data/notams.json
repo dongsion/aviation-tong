@@ -1,0 +1,342 @@
+{
+  "type": "FeatureCollection",
+  "metadata": {
+    "title": "航空通 - NOTAM 航空通告",
+    "updated_at": "2026-08-18T05:50:34.067785+00:00",
+    "total_features": 7,
+    "data_source": "SAMPLE",
+    "type_counts": {
+      "restricted": 1,
+      "tfr": 1,
+      "warning": 1,
+      "prohibited": 1,
+      "danger": 1,
+      "airway": 1,
+      "other": 1
+    }
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              116.5,
+              41.2
+            ],
+            [
+              116.8,
+              40.5
+            ],
+            [
+              117.5,
+              40.8
+            ],
+            [
+              117.2,
+              41.5
+            ],
+            [
+              116.5,
+              41.2
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "notam_code": "R5678/25",
+        "type": "restricted",
+        "type_name": "限制区",
+        "type_desc": "军事活动限制区域",
+        "color": "#FF6D00",
+        "fir": "ZBPE",
+        "source": "SAMPLE",
+        "time": "18 AUG 06:00 2026 UNTIL 18 AUG 18:00 2026",
+        "start": "2026-08-18 06:00 UTC",
+        "end": "2026-08-18 18:00 UTC",
+        "is_active": true,
+        "altitude": "0 ~ 6000 米",
+        "raw_message": "R5678/25 NOTAMN Q) ZBPE/OR /W /W /000/200/ TEMPORARY RESTRICTED AREA ESTABLISHED FOR MILITARY OPERATIONS. 18 AUG 06:00 2026 UNTIL 18 AUG 18:00 2026.",
+        "is_sample": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              113.3,
+              23.1
+            ],
+            [
+              113.5,
+              22.5
+            ],
+            [
+              114.2,
+              22.8
+            ],
+            [
+              114.0,
+              23.4
+            ],
+            [
+              113.3,
+              23.1
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "notam_code": "TFR9012/25",
+        "type": "tfr",
+        "type_name": "临时飞行限制",
+        "type_desc": "临时飞行限制(TFR)",
+        "color": "#2962FF",
+        "fir": "ZGZU",
+        "source": "SAMPLE",
+        "time": "18 AUG 08:00 2026 UNTIL 19 AUG 08:00 2026",
+        "start": "2026-08-18 08:00 UTC",
+        "end": "2026-08-19 08:00 UTC",
+        "is_active": true,
+        "altitude": "0 ~ 3000 米",
+        "raw_message": "TFR9012/25 NOTAMN TEMPORARY FLIGHT RESTRICTION IN ZGZU FIR. NO FLIGHT OPERATIONS PERMITTED. 18 AUG 08:00 2026 UNTIL 19 AUG 08:00 2026.",
+        "is_sample": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              125.0,
+              31.0
+            ],
+            [
+              125.5,
+              30.0
+            ],
+            [
+              127.0,
+              30.5
+            ],
+            [
+              126.5,
+              31.5
+            ],
+            [
+              125.0,
+              31.0
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "notam_code": "W3456/25",
+        "type": "warning",
+        "type_name": "警告区",
+        "type_desc": "潜在飞行危险警告区域",
+        "color": "#FFD600",
+        "fir": "ZSHA",
+        "source": "SAMPLE",
+        "time": "18 AUG 00:00 2026 UNTIL 20 AUG 00:00 2026",
+        "start": "2026-08-18 00:00 UTC",
+        "end": "2026-08-20 00:00 UTC",
+        "is_active": true,
+        "altitude": "0 ~ 9000 米",
+        "raw_message": "W3456/25 NOTAMN WARNING AREA ESTABLISHED. POTENTIAL HAZARD TO FLIGHT OPERATIONS. 18 AUG 00:00 2026 UNTIL 20 AUG 00:00 2026.",
+        "is_sample": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              106.5,
+              29.5
+            ],
+            [
+              106.8,
+              29.0
+            ],
+            [
+              107.5,
+              29.3
+            ],
+            [
+              107.2,
+              29.8
+            ],
+            [
+              106.5,
+              29.5
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "notam_code": "P7890/25",
+        "type": "prohibited",
+        "type_name": "禁航区",
+        "type_desc": "完全禁止飞行的区域",
+        "color": "#AA00FF",
+        "fir": "ZHWH",
+        "source": "SAMPLE",
+        "time": "18 AUG 00:00 2026 UNTIL 25 AUG 00:00 2026",
+        "start": "2026-08-18 00:00 UTC",
+        "end": "2026-08-25 00:00 UTC",
+        "is_active": true,
+        "altitude": "0 ~ 无限制 米",
+        "raw_message": "P7890/25 NOTAMN PROHIBITED AREA. NO FLIGHT PERMITTED. 18 AUG 00:00 2026 UNTIL 25 AUG 00:00 2026.",
+        "is_sample": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              115.0,
+              15.0
+            ],
+            [
+              115.5,
+              14.0
+            ],
+            [
+              117.0,
+              14.5
+            ],
+            [
+              116.5,
+              15.5
+            ],
+            [
+              115.0,
+              15.0
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "notam_code": "A5678/25",
+        "type": "danger",
+        "type_name": "临时危险区",
+        "type_desc": "火箭发射、导弹试射等临时危险区域",
+        "color": "#FF1744",
+        "fir": "ZSHA",
+        "source": "SAMPLE",
+        "time": "18 AUG 10:00 2026 UNTIL 18 AUG 12:00 2026",
+        "start": "2026-08-18 10:00 UTC",
+        "end": "2026-08-18 12:00 UTC",
+        "is_active": true,
+        "altitude": "0 ~ 无限制 米",
+        "raw_message": "A5678/25 NOTAMN Q) ZSHA/OD /W /W /000/999/ TEMPORARY DANGER AREA - ROCKET LAUNCH DEBRIS ZONE BOUNDED BY: N150000E1150000-N140000E1153000-N143000E1170000-N153000E1163000 BACK TO START. 18 AUG 10:00 2026 UNTIL 18 AUG 12:00 2026.",
+        "is_sample": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              120.0,
+              36.0
+            ],
+            [
+              120.5,
+              35.5
+            ],
+            [
+              121.5,
+              35.8
+            ],
+            [
+              121.0,
+              36.3
+            ],
+            [
+              120.0,
+              36.0
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "notam_code": "A2345/25",
+        "type": "airway",
+        "type_name": "航路变更",
+        "type_desc": "航路调整或导航设施变更",
+        "color": "#00C853",
+        "fir": "ZSHA",
+        "source": "SAMPLE",
+        "time": "18 AUG 00:00 2026 UNTIL 22 AUG 00:00 2026",
+        "start": "2026-08-18 00:00 UTC",
+        "end": "2026-08-22 00:00 UTC",
+        "is_active": true,
+        "altitude": "3000 ~ 6000 米",
+        "raw_message": "A2345/25 NOTAMN AIRWAY ROUTE CHANGE DUE TO NAVIGATION AID MAINTENANCE. 18 AUG 00:00 2026 UNTIL 22 AUG 00:00 2026.",
+        "is_sample": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              126.0,
+              45.5
+            ],
+            [
+              126.3,
+              45.0
+            ],
+            [
+              127.0,
+              45.2
+            ],
+            [
+              126.7,
+              45.7
+            ],
+            [
+              126.0,
+              45.5
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "notam_code": "A3456/25",
+        "type": "other",
+        "type_name": "其他通告",
+        "type_desc": "其他类型航空通告",
+        "color": "#546E7A",
+        "fir": "ZYSH",
+        "source": "SAMPLE",
+        "time": "18 AUG 00:00 2026 UNTIL 19 AUG 00:00 2026",
+        "start": "2026-08-18 00:00 UTC",
+        "end": "2026-08-19 00:00 UTC",
+        "is_active": true,
+        "altitude": "0 ~ 5000 米",
+        "raw_message": "A3456/25 NOTAMN TEMPORARY AREA FOR AVIATION OPERATIONS. 18 AUG 00:00 2026 UNTIL 19 AUG 00:00 2026.",
+        "is_sample": true
+      }
+    }
+  ]
+}

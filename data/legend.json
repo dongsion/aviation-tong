@@ -1,0 +1,47 @@
+{
+  "types": [
+    {
+      "key": "danger",
+      "name": "临时危险区",
+      "desc": "火箭发射、导弹试射等临时危险区域",
+      "color": "#FF1744"
+    },
+    {
+      "key": "restricted",
+      "name": "限制区",
+      "desc": "军事活动限制区域",
+      "color": "#FF6D00"
+    },
+    {
+      "key": "warning",
+      "name": "警告区",
+      "desc": "潜在飞行危险警告区域",
+      "color": "#FFD600"
+    },
+    {
+      "key": "prohibited",
+      "name": "禁航区",
+      "desc": "完全禁止飞行的区域",
+      "color": "#AA00FF"
+    },
+    {
+      "key": "tfr",
+      "name": "临时飞行限制",
+      "desc": "临时飞行限制(TFR)",
+      "color": "#2962FF"
+    },
+    {
+      "key": "airway",
+      "name": "航路变更",
+      "desc": "航路调整或导航设施变更",
+      "color": "#00C853"
+    },
+    {
+      "key": "other",
+      "name": "其他通告",
+      "desc": "其他类型航空通告",
+      "color": "#546E7A"
+    }
+  ],
+  "updated_at": "2026-08-18T05:50:34.068531+00:00"
+}
