@@ -2,11 +2,10 @@
   "type": "FeatureCollection",
   "metadata": {
     "title": "航空通 - NOTAM 航空通告",
-    "updated_at": "2026-08-18T17:52:04.831788+00:00",
-    "total_features": 6,
+    "updated_at": "2026-08-18T18:27:14.991345+00:00",
+    "total_features": 5,
     "data_source": "SAMPLE",
     "type_counts": {
-      "restricted": 1,
       "tfr": 1,
       "warning": 1,
       "prohibited": 1,
@@ -15,52 +14,6 @@
     }
   },
   "features": [
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Polygon",
-        "coordinates": [
-          [
-            [
-              116.5,
-              41.2
-            ],
-            [
-              116.8,
-              40.5
-            ],
-            [
-              117.5,
-              40.8
-            ],
-            [
-              117.2,
-              41.5
-            ],
-            [
-              116.5,
-              41.2
-            ]
-          ]
-        ]
-      },
-      "properties": {
-        "notam_code": "R5678/25",
-        "type": "restricted",
-        "type_name": "限制区",
-        "type_desc": "军事活动限制区域",
-        "color": "#FF6D00",
-        "fir": "ZBPE",
-        "source": "SAMPLE",
-        "time": "18 AUG 06:00 2026 UNTIL 18 AUG 18:00 2026",
-        "start": "2026-08-18 06:00 UTC",
-        "end": "2026-08-18 18:00 UTC",
-        "is_active": true,
-        "altitude": "0 ~ 6000 米",
-        "raw_message": "R5678/25 NOTAMN Q) ZBPE/OR /W /W /000/200/ TEMPORARY RESTRICTED AREA ESTABLISHED FOR MILITARY OPERATIONS. 18 AUG 06:00 2026 UNTIL 18 AUG 18:00 2026.",
-        "is_sample": true
-      }
-    },
     {
       "type": "Feature",
       "geometry": {
