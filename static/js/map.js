@@ -413,10 +413,15 @@ function buildLaunchPopup(props, color) {
     const liveBadge = props.webcast_live ? '<span class="popup-badge" style="background:#ff1744;margin-left:4px;">🔴 直播中</span>' : '';
     const desc = props.mission_desc ? `<div class="popup-raw">${props.mission_desc}</div>` : '';
 
-    // 火箭/任务图片
+    // 火箭/任务图片（懒加载 + 占位符 + 淡入）
     const imgUrl = props.image_url || '';
     const imgHtml = imgUrl
-        ? `<div class="popup-image-wrapper"><img src="${imgUrl}" alt="${props.name || ''}" class="popup-image" onerror="this.parentElement.style.display='none'"></div>`
+        ? `<div class="popup-image-wrapper">
+            <div class="popup-image-loading">📊 加载中...</div>
+            <img src="${imgUrl}" alt="${props.name || ''}" class="popup-image" loading="lazy" style="opacity:0"
+                onload="this.style.opacity='1';this.previousElementSibling.style.display='none'"
+                onerror="this.parentElement.style.display='none'">
+        </div>`
         : '';
 
     return `
