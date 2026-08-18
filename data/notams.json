@@ -2,15 +2,14 @@
   "type": "FeatureCollection",
   "metadata": {
     "title": "航空通 - NOTAM 航空通告",
-    "updated_at": "2026-08-18T11:49:22.037176+00:00",
-    "total_features": 7,
+    "updated_at": "2026-08-18T12:31:51.742106+00:00",
+    "total_features": 6,
     "data_source": "SAMPLE",
     "type_counts": {
       "restricted": 1,
       "tfr": 1,
       "warning": 1,
       "prohibited": 1,
-      "danger": 1,
       "airway": 1,
       "other": 1
     }
@@ -197,52 +196,6 @@
         "is_active": true,
         "altitude": "0 ~ 无限制 米",
         "raw_message": "P7890/25 NOTAMN PROHIBITED AREA. NO FLIGHT PERMITTED. 18 AUG 00:00 2026 UNTIL 25 AUG 00:00 2026.",
-        "is_sample": true
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Polygon",
-        "coordinates": [
-          [
-            [
-              115.0,
-              15.0
-            ],
-            [
-              115.5,
-              14.0
-            ],
-            [
-              117.0,
-              14.5
-            ],
-            [
-              116.5,
-              15.5
-            ],
-            [
-              115.0,
-              15.0
-            ]
-          ]
-        ]
-      },
-      "properties": {
-        "notam_code": "A5678/25",
-        "type": "danger",
-        "type_name": "临时危险区",
-        "type_desc": "火箭发射、导弹试射等临时危险区域",
-        "color": "#FF1744",
-        "fir": "ZSHA",
-        "source": "SAMPLE",
-        "time": "18 AUG 10:00 2026 UNTIL 18 AUG 12:00 2026",
-        "start": "2026-08-18 10:00 UTC",
-        "end": "2026-08-18 12:00 UTC",
-        "is_active": true,
-        "altitude": "0 ~ 无限制 米",
-        "raw_message": "A5678/25 NOTAMN Q) ZSHA/OD /W /W /000/999/ TEMPORARY DANGER AREA - ROCKET LAUNCH DEBRIS ZONE BOUNDED BY: N150000E1150000-N140000E1153000-N143000E1170000-N153000E1163000 BACK TO START. 18 AUG 10:00 2026 UNTIL 18 AUG 12:00 2026.",
         "is_sample": true
       }
     },
