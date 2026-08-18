@@ -33,103 +33,17 @@ html, body {
 }
 
 /* ============================================================
-   顶栏
+   主布局 (无顶栏，全屏地图 + 左侧侧边栏)
    ============================================================ */
-.top-bar {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 56px;
-    background: var(--bg-secondary);
-    border-bottom: 1px solid var(--border);
+.main-container {
     display: flex;
-    align-items: center;
-    padding: 0 20px;
-    z-index: 1000;
-    box-shadow: var(--shadow);
-}
-
-.top-bar .logo {
-    font-size: 20px;
-    font-weight: 700;
-    color: var(--text-primary);
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.top-bar .logo .icon {
-    font-size: 24px;
-}
-
-.top-bar .subtitle {
-    font-size: 12px;
-    color: var(--text-muted);
-    margin-left: 12px;
-}
-
-.top-bar .status {
-    margin-left: auto;
-    display: flex;
-    align-items: center;
-    gap: 16px;
-}
-
-.top-bar .status-item {
-    font-size: 13px;
-    color: var(--text-secondary);
-    display: flex;
-    align-items: center;
-    gap: 6px;
-}
-
-.top-bar .status-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: #00e676;
-    box-shadow: 0 0 6px #00e676;
-    animation: pulse 2s infinite;
-}
-
-.top-bar .status-dot.offline {
-    background: var(--danger);
-    box-shadow: 0 0 6px var(--danger);
+    height: 100%;
+    width: 100%;
 }
 
 @keyframes pulse {
     0%, 100% { opacity: 1; }
     50% { opacity: 0.5; }
-}
-
-.top-bar .btn-refresh {
-    background: var(--accent);
-    color: #fff;
-    border: none;
-    padding: 6px 16px;
-    border-radius: var(--radius);
-    cursor: pointer;
-    font-size: 13px;
-    transition: background 0.2s;
-}
-
-.top-bar .btn-refresh:hover {
-    background: var(--accent-hover);
-}
-
-.top-bar .btn-refresh:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
-
-/* ============================================================
-   主布局
-   ============================================================ */
-.main-container {
-    display: flex;
-    height: calc(100% - 56px);
-    margin-top: 56px;
 }
 
 /* ============================================================
@@ -143,6 +57,136 @@ html, body {
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    transition: margin-left 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 1000;
+}
+
+.sidebar.collapsed {
+    margin-left: -340px;
+}
+
+/* 侧边栏头部 */
+.sidebar-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    background: var(--bg-tertiary);
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+}
+
+.sidebar-header .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.sidebar-header .logo .icon {
+    font-size: 24px;
+}
+
+.logo-text {
+    display: flex;
+    flex-direction: column;
+}
+
+.logo-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: 1.2;
+}
+
+.logo-subtitle {
+    font-size: 10px;
+    color: var(--text-muted);
+    line-height: 1.3;
+}
+
+/* 折叠按钮 */
+.btn-collapse {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    flex-shrink: 0;
+}
+
+.btn-collapse:hover {
+    background: var(--accent);
+    color: white;
+    border-color: var(--accent);
+}
+
+/* 状态信息网格 */
+.status-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+    padding: 10px 14px;
+}
+
+.status-cell {
+    font-size: 12px;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 8px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 6px;
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #00e676;
+    box-shadow: 0 0 6px #00e676;
+    animation: pulse 2s infinite;
+    flex-shrink: 0;
+}
+
+.status-buttons {
+    display: flex;
+    gap: 8px;
+    padding: 0 14px 10px;
+}
+
+.btn-action {
+    flex: 1;
+    padding: 8px 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+}
+
+.btn-action:hover {
+    background: var(--accent);
+    color: white;
+    border-color: var(--accent);
+}
+
+#btn-toggle-sat.active {
+    background: rgba(0, 229, 255, 0.2);
+    border-color: #00E5FF;
+    color: #00E5FF;
+    box-shadow: 0 0 8px rgba(0, 229, 255, 0.3);
 }
 
 .sidebar-section {
@@ -346,6 +390,47 @@ html, body {
     flex: 1;
     position: relative;
     overflow: hidden;
+}
+
+/* 折叠时的展开按钮 */
+.btn-expand {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    transform: translateY(-50%);
+    z-index: 999;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-left: none;
+    border-radius: 0 12px 12px 0;
+    padding: 16px 8px;
+    cursor: pointer;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    color: var(--text-secondary);
+    font-size: 14px;
+    transition: all 0.2s;
+    box-shadow: 4px 0 12px rgba(0, 0, 0, 0.3);
+    writing-mode: vertical-rl;
+    text-orientation: upright;
+    letter-spacing: 2px;
+}
+
+.btn-expand:hover {
+    background: var(--accent);
+    color: white;
+    border-color: var(--accent);
+}
+
+.btn-expand-text {
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.sidebar.collapsed ~ .map-container .btn-expand {
+    display: flex;
 }
 
 #map {
@@ -590,75 +675,87 @@ html, body {
    响应式 — 移动端适配
    ============================================================ */
 @media (max-width: 768px) {
-    /* 顶栏：Logo 行 + 紧凑统计条 */
-    .top-bar {
-        position: relative !important;
-        height: auto !important;
-        flex-direction: column;
-        align-items: stretch;
-        padding: 6px 12px;
-        gap: 4px;
-        box-shadow: none;
-        border-bottom: 1px solid var(--border);
+    /* 主布局：全屏 flex */
+    .main-container {
+        display: flex !important;
+        flex-direction: row !important;
+        height: 100% !important;
+        width: 100% !important;
     }
 
-    .top-bar .logo {
-        justify-content: center;
-        font-size: 16px;
-        gap: 6px;
+    /* 侧边栏：默认折叠，占满高度 */
+    .sidebar {
+        width: 85% !important;
+        min-width: 85% !important;
+        max-width: 360px !important;
+        height: 100% !important;
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 2000;
+        box-shadow: 4px 0 20px rgba(0, 0, 0, 0.5);
+        transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    .top-bar .logo .icon {
-        font-size: 18px;
+    .sidebar.collapsed {
+        margin-left: 0 !important;
+        transform: translateX(-100%);
     }
 
-    .top-bar .subtitle {
-        display: none;
+    /* 地图占满全屏 */
+    .map-container {
+        width: 100% !important;
+        height: 100% !important;
+        flex: 1 !important;
     }
 
-    /* 统计条：横向排列，紧凑间距 */
-    .top-bar .status {
-        margin-left: 0;
-        display: flex;
-        flex-wrap: nowrap;
-        justify-content: space-between;
-        align-items: center;
-        gap: 4px;
+    /* 折叠按钮始终可见 */
+    .btn-expand {
+        display: flex !important;
     }
 
-    .top-bar .status-item {
-        font-size: 11px;
-        gap: 3px;
-        white-space: nowrap;
+    .sidebar.collapsed ~ .map-container .btn-expand {
+        display: flex !important;
     }
 
-    /* 隐藏次要信息 */
-    .mobile-hide {
+    .sidebar:not(.collapsed) ~ .map-container .btn-expand {
         display: none !important;
     }
 
-    .top-bar .btn-refresh {
-        padding: 4px 10px;
+    /* 状态网格单列 */
+    .status-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 4px;
+        padding: 8px 10px;
+    }
+
+    .status-cell {
         font-size: 11px;
-        flex-shrink: 0;
+        padding: 3px 6px;
     }
 
-    /* 主布局：自然流动 */
-    .main-container {
-        display: block !important;
-        height: auto !important;
-        margin-top: 0 !important;
-        padding-bottom: env(safe-area-inset-bottom, 0px);
+    /* 侧边栏头部 */
+    .sidebar-header {
+        padding: 10px 12px;
     }
 
-    .sidebar {
-        width: 100% !important;
-        min-width: 100% !important;
-        max-height: 45vh !important;
-        height: auto !important;
-        border-right: none;
-        border-bottom: 1px solid var(--border);
-        overflow-y: auto;
+    .logo-title {
+        font-size: 16px;
+    }
+
+    .logo-subtitle {
+        font-size: 9px;
+    }
+
+    /* 按钮适配 */
+    .btn-action {
+        padding: 8px 8px;
+        font-size: 11px;
+    }
+
+    .btn-collapse {
+        width: 36px;
+        height: 36px;
     }
 
     .sidebar-section .section-title {
@@ -667,14 +764,7 @@ html, body {
     }
 
     .sidebar-section .section-content {
-        padding: 10px 12px;
-    }
-
-    /* 地图占满剩余空间 */
-    .map-container {
-        width: 100%;
-        height: calc(100vh - 220px);
-        min-height: 50vh;
+        padding: 8px 10px;
     }
 
     /* Leaflet 缩放按钮 — 更大触摸区 */
@@ -737,30 +827,35 @@ html, body {
     .legend-desc {
         font-size: 10px;
     }
+
+    /* 展开按钮更大 */
+    .btn-expand {
+        padding: 20px 10px;
+        font-size: 16px;
+    }
 }
 
 /* 超小屏幕 (≤375px) */
 @media (max-width: 375px) {
-    .top-bar .logo {
+    .logo-title {
         font-size: 15px;
     }
 
-    .top-bar .status {
-        gap: 4px 8px;
+    .status-grid {
+        grid-template-columns: 1fr;
     }
 
-    .top-bar .status-item {
-        font-size: 11px;
+    .status-buttons {
+        flex-direction: column;
     }
 }
 
 /* 移动端 body 布局 */
 @media (max-width: 768px) {
     html, body {
-        overflow-y: auto;
-        overflow-x: hidden;
-        display: block;
+        overflow: hidden;
         height: 100%;
+        width: 100%;
     }
 }
 

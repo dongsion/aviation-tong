@@ -80,6 +80,19 @@ function toggleSection(sectionId) {
     }
 }
 
+// 折叠/展开整个侧边栏
+function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    if (!sidebar) return;
+
+    sidebar.classList.toggle('collapsed');
+
+    // 触发地图重绘
+    if (map) {
+        setTimeout(() => map.invalidateSize(), 400);
+    }
+}
+
 function initMap() {
     map = L.map('map', {
         center: [30, 115],
