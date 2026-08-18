@@ -4,6 +4,28 @@
  */
 
 // ============================================================
+// HTML 转义工具 - 防 XSS
+// ============================================================
+function escapeHtml(str) {
+    if (str === null || str === undefined) return '';
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
+// 防抖工具函数
+function debounce(fn, delay) {
+    let timer = null;
+    return function(...args) {
+        clearTimeout(timer);
+        timer = setTimeout(() => fn.apply(this, args), delay);
+    };
+}
+
+// ============================================================
 // 全局状态
 // ============================================================
 let map = null;
@@ -54,7 +76,8 @@ function getFlag(cc, size = 20) {
     if (!cc2) {
         return `<span style="font-size:${size * 0.7}px;opacity:0.6">🏳️</span>`;
     }
-    return `<img src="static/flags/${cc2}.png" alt="${cc}" style="width:${size}px;height:${size * 0.67}px;border-radius:2px;vertical-align:middle;object-fit:cover" onerror="this.style.display='none'">`;
+    // 安全拼接: cc2 来自固定映射表，不会注入
+    return `<img src="static/flags/${encodeURIComponent(cc2)}.png" alt="${escapeHtml(cc)}" style="width:${size}px;height:${size * 0.67}px;border-radius:2px;vertical-align:middle;object-fit:cover" onerror="this.style.display='none'">`;
 }
 
 // ============================================================
@@ -118,7 +141,7 @@ function initMap() {
 }
 
 // ============================================================
-// 弹窗拖拽功能
+// 弹窗拖拽功能 (修复事件监听器泄漏)
 // ============================================================
 function enablePopupDrag() {
     map.on('popupopen', function(e) {
@@ -133,104 +156,58 @@ function enablePopupDrag() {
         let startX = 0, startY = 0;
         let popupStartX = 0, popupStartY = 0;
 
-        // 鼠标按下
-        dragHandle.addEventListener('mousedown', function(e) {
-            // 不拦截关闭按钮和链接的点击
-            if (e.target.closest('.leaflet-popup-close-button') || e.target.tagName === 'A') return;
+        // 鼠标释放和触摸结束的清理函数 - 移除监听器防止泄漏
+        function cleanup() {
+            document.removeEventListener('mousemove', onMouseMove);
+            document.removeEventListener('mouseup', onMouseUp);
+            document.removeEventListener('touchmove', onTouchMove);
+            document.removeEventListener('touchend', onTouchEnd);
+        }
 
-            isDragging = true;
-            startX = e.clientX;
-            startY = e.clientY;
-
-            const popupEl = wrapper.querySelector('.leaflet-popup');
-            if (popupEl) {
-                const transform = popupEl.style.transform || '';
-                const match = transform.match(/translate3d\((-?\d+)px,\s*(-?\d+)px/);
-                popupStartX = match ? parseInt(match[1]) : 0;
-                popupStartY = match ? parseInt(match[2]) : 0;
-                popupEl.classList.add('dragging');
-            }
-
-            e.preventDefault();
-        });
-
-        // 鼠标移动
-        document.addEventListener('mousemove', function(e) {
+        function onMouseMove(e) {
             if (!isDragging) return;
-
             const dx = e.clientX - startX;
             const dy = e.clientY - startY;
-
             const popupEl = wrapper.querySelector('.leaflet-popup');
             if (popupEl) {
                 popupEl.style.transform = `translate3d(${popupStartX + dx}px, ${popupStartY + dy}px, 0)`;
             }
-        });
+        }
 
-        // 鼠标释放 — 如果几乎没移动则视为点击，关闭弹窗
-        document.addEventListener('mouseup', function(e) {
+        function onMouseUp(e) {
             if (!isDragging) return;
             isDragging = false;
-
             const popupEl = wrapper.querySelector('.leaflet-popup');
             if (popupEl) {
                 popupEl.classList.remove('dragging');
             }
-
-            // 判断是否为点击（移动距离小于5像素）
             const dx = Math.abs(e.clientX - startX);
             const dy = Math.abs(e.clientY - startY);
             if (dx < 5 && dy < 5) {
                 map.closePopup(popup);
             }
-        });
+            cleanup();
+        }
 
-        // 触摸支持（移动端）
-        dragHandle.addEventListener('touchstart', function(e) {
-            if (e.target.closest('.leaflet-popup-close-button') || e.target.tagName === 'A') return;
-
-            const touch = e.touches[0];
-            isDragging = true;
-            startX = touch.clientX;
-            startY = touch.clientY;
-
-            const popupEl = wrapper.querySelector('.leaflet-popup');
-            if (popupEl) {
-                const transform = popupEl.style.transform || '';
-                const match = transform.match(/translate3d\((-?\d+)px,\s*(-?\d+)px/);
-                popupStartX = match ? parseInt(match[1]) : 0;
-                popupStartY = match ? parseInt(match[2]) : 0;
-                popupEl.classList.add('dragging');
-            }
-
-            e.preventDefault();
-        }, { passive: false });
-
-        document.addEventListener('touchmove', function(e) {
+        function onTouchMove(e) {
             if (!isDragging) return;
-
             const touch = e.touches[0];
             const dx = touch.clientX - startX;
             const dy = touch.clientY - startY;
-
             const popupEl = wrapper.querySelector('.leaflet-popup');
             if (popupEl) {
                 popupEl.style.transform = `translate3d(${popupStartX + dx}px, ${popupStartY + dy}px, 0)`;
             }
-
             e.preventDefault();
-        }, { passive: false });
+        }
 
-        document.addEventListener('touchend', function(e) {
+        function onTouchEnd(e) {
             if (!isDragging) return;
             isDragging = false;
-
             const popupEl = wrapper.querySelector('.leaflet-popup');
             if (popupEl) {
                 popupEl.classList.remove('dragging');
             }
-
-            // 判断是否为点击（移动距离小于5像素）
             const touch = e.changedTouches[0];
             if (touch) {
                 const dx = Math.abs(touch.clientX - startX);
@@ -238,6 +215,59 @@ function enablePopupDrag() {
                 if (dx < 5 && dy < 5) {
                     map.closePopup(popup);
                 }
+            }
+            cleanup();
+        }
+
+        // 鼠标按下 - 只注册在 dragHandle 上
+        function onMouseDown(e) {
+            if (e.target.closest('.leaflet-popup-close-button') || e.target.tagName === 'A') return;
+            isDragging = true;
+            startX = e.clientX;
+            startY = e.clientY;
+            const popupEl = wrapper.querySelector('.leaflet-popup');
+            if (popupEl) {
+                const transform = popupEl.style.transform || '';
+                const match = transform.match(/translate3d\((-?\d+)px,\s*(-?\d+)px/);
+                popupStartX = match ? parseInt(match[1]) : 0;
+                popupStartY = match ? parseInt(match[2]) : 0;
+                popupEl.classList.add('dragging');
+            }
+            e.preventDefault();
+            // 仅在拖拽开始时注册 document 级监听器
+            document.addEventListener('mousemove', onMouseMove);
+            document.addEventListener('mouseup', onMouseUp);
+        }
+
+        // 触摸开始
+        function onTouchStart(e) {
+            if (e.target.closest('.leaflet-popup-close-button') || e.target.tagName === 'A') return;
+            const touch = e.touches[0];
+            isDragging = true;
+            startX = touch.clientX;
+            startY = touch.clientY;
+            const popupEl = wrapper.querySelector('.leaflet-popup');
+            if (popupEl) {
+                const transform = popupEl.style.transform || '';
+                const match = transform.match(/translate3d\((-?\d+)px,\s*(-?\d+)px/);
+                popupStartX = match ? parseInt(match[1]) : 0;
+                popupStartY = match ? parseInt(match[2]) : 0;
+                popupEl.classList.add('dragging');
+            }
+            e.preventDefault();
+            document.addEventListener('touchmove', onTouchMove, { passive: false });
+            document.addEventListener('touchend', onTouchEnd);
+        }
+
+        // 注册拖拽句柄上的事件
+        dragHandle.addEventListener('mousedown', onMouseDown);
+        dragHandle.addEventListener('touchstart', onTouchStart, { passive: false });
+
+        // 弹窗关闭时清理
+        map.on('popupclose', function onClose(closeEvent) {
+            if (closeEvent.popup === popup) {
+                cleanup();
+                map.off('popupclose', onClose);
             }
         });
     });
@@ -250,40 +280,50 @@ async function loadData() {
     const refreshBtn = document.getElementById('btn-refresh');
     if (refreshBtn) refreshBtn.disabled = true;
 
-    try {
-        // 并行加载 NOTAM 和发射数据
-        const [notamResp, launchResp] = await Promise.all([
-            fetch('data/notams.json?t=' + Date.now()),
-            fetch('data/launches.json?t=' + Date.now()),
-        ]);
+    let hasError = false;
 
-        // NOTAM 数据
+    // 分别加载 NOTAM 和发射数据，部分失败时仍渲染可用数据
+    try {
+        const notamResp = await fetch('data/notams.json?t=' + Date.now());
         if (notamResp.ok) {
             const geojson = await notamResp.json();
             allFeatures = geojson.features || [];
             const meta = geojson.metadata || {};
             lastUpdate = meta.updated_at;
         }
+    } catch (err) {
+        console.error('NOTAM 数据加载失败:', err);
+        hasError = true;
+    }
 
-        // 发射数据
+    try {
+        const launchResp = await fetch('data/launches.json?t=' + Date.now());
         if (launchResp.ok) {
             const launchJson = await launchResp.json();
             allLaunches = launchJson.features || [];
         }
+    } catch (err) {
+        console.error('发射数据加载失败:', err);
+        hasError = true;
+    }
 
+    try {
         renderLegend();
         renderNotamList();
         renderLaunchList();
         renderMapFeatures();
         renderLaunchMarkers();
         updateStatusBar();
-
     } catch (err) {
-        console.error('数据加载失败:', err);
-        showStatus('error', '数据加载失败');
-    } finally {
-        if (refreshBtn) refreshBtn.disabled = false;
+        console.error('渲染失败:', err);
+        hasError = true;
     }
+
+    if (hasError) {
+        showStatus('error', '部分数据加载失败');
+    }
+
+    if (refreshBtn) refreshBtn.disabled = false;
 }
 
 // ============================================================
@@ -361,23 +401,24 @@ function renderMapFeatures() {
 
 function buildPopupContent(props, config) {
     const isSample = props.is_sample ? '<span style="color:#FFA000;font-size:10px;"> (示例数据)</span>' : '';
-    const rawShort = (props.raw_message || '').substring(0, 200);
+    const rawShort = escapeHtml((props.raw_message || '').substring(0, 200));
+    const hasMore = (props.raw_message || '').length > 200;
 
     return `
         <div class="popup-content">
             <div class="popup-header">
-                <span class="popup-badge" style="background:${config.color}">${config.name}</span>
-                <span class="popup-code">${props.notam_code || 'N/A'}${isSample}</span>
+                <span class="popup-badge" style="background:${config.color}">${escapeHtml(config.name)}</span>
+                <span class="popup-code">${escapeHtml(props.notam_code || 'N/A')}${isSample}</span>
             </div>
             <div class="popup-info">
-                <div class="info-row"><span class="info-label">情报区</span><span class="info-value">${props.fir || 'N/A'}</span></div>
-                <div class="info-row"><span class="info-label">高度</span><span class="info-value">${props.altitude || 'N/A'}</span></div>
-                <div class="info-row"><span class="info-label">开始</span><span class="info-value">${props.start || 'N/A'}</span></div>
-                <div class="info-row"><span class="info-label">结束</span><span class="info-value">${props.end || 'N/A'}</span></div>
-                <div class="info-row"><span class="info-label">来源</span><span class="info-value">${props.source || 'N/A'}</span></div>
+                <div class="info-row"><span class="info-label">情报区</span><span class="info-value">${escapeHtml(props.fir || 'N/A')}</span></div>
+                <div class="info-row"><span class="info-label">高度</span><span class="info-value">${escapeHtml(props.altitude || 'N/A')}</span></div>
+                <div class="info-row"><span class="info-label">开始</span><span class="info-value">${escapeHtml(props.start || 'N/A')}</span></div>
+                <div class="info-row"><span class="info-label">结束</span><span class="info-value">${escapeHtml(props.end || 'N/A')}</span></div>
+                <div class="info-row"><span class="info-label">来源</span><span class="info-value">${escapeHtml(props.source || 'N/A')}</span></div>
                 <div class="info-row"><span class="info-label">状态</span><span class="info-value" style="color:${props.is_active ? '#00e676' : '#ff5252'}">${props.is_active ? '● 生效中' : '● 已失效'}</span></div>
             </div>
-            <div class="popup-raw">${rawShort}${(props.raw_message || '').length > 200 ? '...' : ''}</div>
+            <div class="popup-raw">${rawShort}${hasMore ? '...' : ''}</div>
         </div>
     `;
 }
@@ -455,15 +496,15 @@ function buildLaunchPopup(props, color) {
         // 本地缓存图片 — 加载极快
         imgHtml = `<div class="popup-image-wrapper">
             <div class="popup-image-loading">🚀 加载中...</div>
-            <img src="${localImg}" alt="${props.name || ''}" class="popup-image" loading="eager" style="opacity:0"
+            <img src="${escapeHtml(localImg)}" alt="${escapeHtml(props.name || '')}" class="popup-image" loading="eager" style="opacity:0"
                 onload="this.style.opacity='1';this.previousElementSibling.style.display='none'"
-                onerror="this.onerror=null;this.src='${remoteImg}';if(!this.src){this.parentElement.style.display='none'}">
+                onerror="this.onerror=null;this.src='${escapeHtml(remoteImg)}';if(!this.src){this.parentElement.style.display='none'}">
         </div>`;
     } else if (remoteImg) {
         // 没有本地缓存，直接用远程URL
         imgHtml = `<div class="popup-image-wrapper">
             <div class="popup-image-loading">🚀 加载中...</div>
-            <img src="${remoteImg}" alt="${props.name || ''}" class="popup-image" loading="lazy" style="opacity:0"
+            <img src="${escapeHtml(remoteImg)}" alt="${escapeHtml(props.name || '')}" class="popup-image" loading="lazy" style="opacity:0"
                 onload="this.style.opacity='1';this.previousElementSibling.style.display='none'"
                 onerror="this.parentElement.style.display='none'">
         </div>`;
@@ -473,22 +514,22 @@ function buildLaunchPopup(props, color) {
         <div class="popup-content">
             ${imgHtml}
             <div class="popup-header">
-                <span class="popup-badge" style="background:${color}">${props.status_cn || props.status || '未知'}</span>
+                <span class="popup-badge" style="background:${color}">${escapeHtml(props.status_cn || props.status || '未知')}</span>
                 ${liveBadge}
             </div>
-            <div class="popup-code" style="margin-bottom:6px;">🚀 ${props.name || 'N/A'}</div>
+            <div class="popup-code" style="margin-bottom:6px;">🚀 ${escapeHtml(props.name || 'N/A')}</div>
             <div class="popup-info">
-                <div class="info-row"><span class="info-label">代号</span><span class="info-value" style="font-weight:700;color:#fff">${props.rocket_cn || props.rocket || 'N/A'}</span></div>
-                <div class="info-row"><span class="info-label">任务名</span><span class="info-value">${props.mission_name || 'N/A'}</span></div>
-                <div class="info-row"><span class="info-label">任务类型</span><span class="info-value">${props.mission_type || 'N/A'}</span></div>
-                <div class="info-row"><span class="info-label">轨道</span><span class="info-value">${props.orbit || 'N/A'}</span></div>
-                <div class="info-row"><span class="info-label">发射时间</span><span class="info-value" style="color:#00e676;font-weight:700">${props.net_display || 'N/A'}</span></div>
-                <div class="info-row"><span class="info-label">倒计时</span><span class="info-value" style="color:${props.is_upcoming ? '#FFD600' : '#546E7A'};font-weight:700">${props.countdown || 'N/A'}</span></div>
-                <div class="info-row"><span class="info-label">服务商</span><span class="info-value">${props.provider || 'N/A'} (${props.provider_type || ''})</span></div>
-                <div class="info-row"><span class="info-label">发射场</span><span class="info-value">${flag} ${props.location_cn || props.location_name || 'N/A'}</span></div>
-                <div class="info-row"><span class="info-label">发射台</span><span class="info-value">${props.pad_name || 'N/A'}</span></div>
+                <div class="info-row"><span class="info-label">代号</span><span class="info-value" style="font-weight:700;color:#fff">${escapeHtml(props.rocket_cn || props.rocket || 'N/A')}</span></div>
+                <div class="info-row"><span class="info-label">任务名</span><span class="info-value">${escapeHtml(props.mission_name || 'N/A')}</span></div>
+                <div class="info-row"><span class="info-label">任务类型</span><span class="info-value">${escapeHtml(props.mission_type || 'N/A')}</span></div>
+                <div class="info-row"><span class="info-label">轨道</span><span class="info-value">${escapeHtml(props.orbit || 'N/A')}</span></div>
+                <div class="info-row"><span class="info-label">发射时间</span><span class="info-value" style="color:#00e676;font-weight:700">${escapeHtml(props.net_display || 'N/A')}</span></div>
+                <div class="info-row"><span class="info-label">倒计时</span><span class="info-value" style="color:${props.is_upcoming ? '#FFD600' : '#546E7A'};font-weight:700">${escapeHtml(props.countdown || 'N/A')}</span></div>
+                <div class="info-row"><span class="info-label">服务商</span><span class="info-value">${escapeHtml(props.provider || 'N/A')} (${escapeHtml(props.provider_type || '')})</span></div>
+                <div class="info-row"><span class="info-label">发射场</span><span class="info-value">${flag} ${escapeHtml(props.location_cn || props.location_name || 'N/A')}</span></div>
+                <div class="info-row"><span class="info-label">发射台</span><span class="info-value">${escapeHtml(props.pad_name || 'N/A')}</span></div>
             </div>
-            ${props.mission_desc ? `<div class="popup-payload"><div class="payload-title">📦 搭载载荷</div><div class="payload-desc">${props.mission_desc}</div></div>` : ''}
+            ${props.mission_desc ? `<div class="popup-payload"><div class="payload-title">📦 搭载载荷</div><div class="payload-desc">${escapeHtml(props.mission_desc)}</div></div>` : ''}
         </div>
     `;
 }
@@ -606,11 +647,11 @@ function renderNotamList() {
         const config = TYPE_CONFIG[notamType] || TYPE_CONFIG.other;
 
         html += `
-            <div class="notam-card" style="border-left-color:${config.color}" data-code="${props.notam_code || ''}">
-                <div class="notam-code">${props.notam_code || 'N/A'}</div>
-                <div class="notam-type">${config.name}</div>
-                <div class="notam-time">${props.start || ''} ~ ${props.end || ''}</div>
-                <span class="notam-fir">${props.fir || ''}</span>
+            <div class="notam-card" style="border-left-color:${config.color}" data-code="${escapeHtml(props.notam_code || '')}">
+                <div class="notam-code">${escapeHtml(props.notam_code || 'N/A')}</div>
+                <div class="notam-type">${escapeHtml(config.name)}</div>
+                <div class="notam-time">${escapeHtml(props.start || '')} ~ ${escapeHtml(props.end || '')}</div>
+                <span class="notam-fir">${escapeHtml(props.fir || '')}</span>
             </div>
         `;
     });
@@ -633,10 +674,11 @@ function renderNotamList() {
 }
 
 function highlightNotamInList(code) {
+    const safeCode = escapeHtml(code);
     document.querySelectorAll('.notam-card').forEach(card => {
         card.classList.toggle('active', card.dataset.code === code);
     });
-    const card = document.querySelector(`.notam-card[data-code="${code}"]`);
+    const card = document.querySelector(`.notam-card[data-code="${safeCode}"]`);
     if (card) card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
@@ -672,14 +714,14 @@ function renderLaunchList() {
         const color = isGo ? '#00E676' : '#FFAB00';
 
         html += `
-            <div class="launch-card" data-slug="${props.slug || props.name}" style="border-left-color:${color}">
-                <div class="launch-name">${flag} ${props.rocket_cn || props.rocket || 'N/A'}</div>
-                <div class="launch-mission">📡 ${props.mission_name || 'N/A'}</div>
+            <div class="launch-card" data-slug="${escapeHtml(props.slug || props.name)}" style="border-left-color:${color}">
+                <div class="launch-name">${flag} ${escapeHtml(props.rocket_cn || props.rocket || 'N/A')}</div>
+                <div class="launch-mission">📡 ${escapeHtml(props.mission_name || 'N/A')}</div>
                 <div class="launch-time" style="color:${isGo ? '#00e676' : '#FFAB00'};font-weight:700">
-                    ⏰ ${props.net_display || 'N/A'}
+                    ⏰ ${escapeHtml(props.net_display || 'N/A')}
                 </div>
-                <div class="launch-countdown">${props.countdown || ''}</div>
-                <span class="notam-fir">${props.location_cn || props.location_name || ''}</span>
+                <div class="launch-countdown">${escapeHtml(props.countdown || '')}</div>
+                <span class="notam-fir">${escapeHtml(props.location_cn || props.location_name || '')}</span>
             </div>
         `;
     });
@@ -700,10 +742,11 @@ function renderLaunchList() {
 }
 
 function highlightLaunchInList(slug) {
+    const safeSlug = escapeHtml(slug);
     document.querySelectorAll('.launch-card').forEach(card => {
         card.classList.toggle('active', card.dataset.slug === slug);
     });
-    const card = document.querySelector(`.launch-card[data-slug="${slug}"]`);
+    const card = document.querySelector(`.launch-card[data-slug="${safeSlug}"]`);
     if (card) card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 

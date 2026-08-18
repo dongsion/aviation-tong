@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width-width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
     <meta name="description" content="航空通 - NOTAM 航空通告与火箭发射计划实时可视化系统">
     <title>航空通 - NOTAM 通告 + 火箭发射实时地图</title>
 
@@ -10,9 +10,11 @@
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✈️</text></svg>">
 
     <!-- Leaflet CSS (本地) -->
-    <link rel="stylesheet" href="static/leaflet/leaflet.css?v=14">
+    <link rel="stylesheet" href="static/leaflet/leaflet.css?v=15">
     <!-- 自定义 CSS -->
-    <link rel="stylesheet" href="static/css/style.css?v=14">
+    <link rel="stylesheet" href="static/css/style.css?v=15">
+    <!-- 付费功能 CSS -->
+    <link rel="stylesheet" href="static/css/premium.css?v=15">
 </head>
 <body>
 
@@ -143,6 +145,46 @@
                 </div>
             </div>
 
+            <!-- 付费功能面板 (Pro) -->
+            <div class="sidebar-section" id="section-premium">
+                <div class="section-title" onclick="toggleSection('section-premium')">
+                    <span>💎</span>
+                    <span>高级功能</span>
+                    <span class="premium-badge premium-badge-trial">PRO</span>
+                    <span class="section-arrow">▼</span>
+                </div>
+                <div class="section-content">
+                    <!-- 试用提示 -->
+                    <div class="trial-banner" id="trial-banner">
+                        <div class="trial-banner-text">
+                            <span class="trial-icon">🎁</span>
+                            <span>免费试用中</span>
+                            <span id="trial-days-left" style="font-weight:700">14</span>
+                            <span>天</span>
+                        </div>
+                    </div>
+                    <!-- 功能入口 -->
+                    <div class="premium-features-grid">
+                        <button class="premium-feature-btn" onclick="openPremiumModal('subscription')">
+                            <span class="premium-feature-icon">📡</span>
+                            <span class="premium-feature-label">NOTAM 订阅</span>
+                        </button>
+                        <button class="premium-feature-btn" onclick="openPremiumModal('flight-plan')">
+                            <span class="premium-feature-icon">✈️</span>
+                            <span class="premium-feature-label">飞行计划分析</span>
+                        </button>
+                        <button class="premium-feature-btn" onclick="openPremiumModal('satellite-pass')">
+                            <span class="premium-feature-icon">🛰️</span>
+                            <span class="premium-feature-label">卫星过境预测</span>
+                        </button>
+                        <button class="premium-feature-btn" onclick="openPremiumModal('api-docs')">
+                            <span class="premium-feature-icon">🔌</span>
+                            <span class="premium-feature-label">API 接口</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
             <!-- 说明 -->
             <div class="sidebar-section" id="section-info">
                 <div class="section-title" onclick="toggleSection('section-info')">
@@ -167,13 +209,19 @@
                 <span>▶</span>
                 <span class="btn-expand-text">信息面板</span>
             </button>
+            <!-- 付费功能 Toast 通知容器 -->
+            <div class="premium-toast-container" id="premium-toast-container"></div>
         </div>
     </div>
 
     <!-- Leaflet JS (本地) + satellite.js + 自定义 JS -->
-    <script src="static/leaflet/leaflet.js?v=14"></script>
+    <script src="static/leaflet/leaflet.js?v=15"></script>
     <script src="static/js/lib/satellite.min.js"></script>
-    <script src="static/js/satellites.js?v=14"></script>
-    <script src="static/js/map.js?v=14"></script>
+    <script src="static/js/satellites.js?v=15"></script>
+    <script src="static/js/map.js?v=15"></script>
+    <!-- 付费功能 JS -->
+    <script src="static/js/premium/subscription.js?v=15"></script>
+    <script src="static/js/premium/flight_plan.js?v=15"></script>
+    <script src="static/js/premium/satellite_pass.js?v=15"></script>
 </body>
 </html>

@@ -218,9 +218,17 @@ function updateSatelliteList() {
 }
 
 /**
- * 搜索卫星并定位
+ * 搜索卫星并定位 (添加防抖优化)
  */
+const searchSatelliteDebounced = debounce(function() {
+    _doSearchSatellite();
+}, 250);
+
 function searchSatellite() {
+    searchSatelliteDebounced();
+}
+
+function _doSearchSatellite() {
     const input = document.getElementById('satellite-search-input');
     if (!input) return;
     const query = input.value.trim().toLowerCase();
@@ -235,7 +243,7 @@ function searchSatellite() {
         const nameCN = getSatelliteNameCN(sat.name).toLowerCase();
         return sat.name.toLowerCase().includes(query) ||
                nameCN.includes(query) ||
-               sat.norad_id.includes(query);
+               String(sat.norad_id).includes(query);
     });
 
     const listEl = document.getElementById('satellite-list');
@@ -253,11 +261,14 @@ function searchSatellite() {
     for (const sat of results.slice(0, 50)) {
         const config = SAT_CATEGORY_CONFIG[sat.category] || { color: '#546E7A', icon: '🛰️' };
         const nameCN = getSatelliteNameCN(sat.name);
-        html += `<div class="sat-item" onclick="searchAndLocateSatellite('${sat.norad_id}')"
+        const safeNoradId = escapeHtml(String(sat.norad_id));
+        const safeName = escapeHtml(sat.name);
+        const safeNameCN = escapeHtml(nameCN);
+        html += `<div class="sat-item" onclick="searchAndLocateSatellite('${safeNoradId}')"
                      style="padding:6px 8px;cursor:pointer;font-size:12px;border-left:3px solid ${config.color};margin:2px 0;background:rgba(255,255,255,0.03);">
-                    <div style="font-weight:600;">${nameCN}</div>
+                    <div style="font-weight:600;">${safeNameCN}</div>
                     <div style="color:var(--text-muted);font-size:10px;">
-                        ${sat.name} · ID:${sat.norad_id}
+                        ${safeName} · ID:${safeNoradId}
                     </div>
                 </div>`;
     }

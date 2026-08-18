@@ -41,6 +41,7 @@ DATA_FILE = os.path.join(DATA_DIR, 'notams.json')
 LEGEND_FILE = os.path.join(DATA_DIR, 'legend.json')
 LAUNCHES_FILE = os.path.join(DATA_DIR, 'launches.json')
 SATELLITES_FILE = os.path.join(DATA_DIR, 'satellites.json')
+TRANSLATIONS_FILE = os.path.join(DATA_DIR, 'translations.json')
 
 
 # ============================================================
@@ -212,137 +213,22 @@ def filter_expired(features: List[dict]) -> List[dict]:
 # 火箭/卫星发射计划 - Launch Library 2 API
 # ============================================================
 
-# 发射状态中文映射
-LAUNCH_STATUS_MAP = {
-    'Go': '已确认发射',
-    'Go for Launch': '已确认发射',
-    'Launch Successful': '发射成功',
-    'Launch is Go': '准许发射',
-    'TBD': '时间待定',
-    'To Be Determined': '时间待定',
-    'In Hold': '暂停倒计时',
-    ' Scrubbed': '已取消',
-    'Launch Scrubbed': '已取消',
-    'Live': '直播中',
-    'End': '已结束',
-}
+def _load_translations():
+    """从 data/translations.json 加载翻译映射表，文件不存在时回退到空映射"""
+    try:
+        with open(TRANSLATIONS_FILE, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        return (
+            data.get('launch_status', {}),
+            data.get('launch_sites', {}),
+            data.get('rocket_names', {}),
+        )
+    except Exception as e:
+        logger.warning(f"翻译文件加载失败，使用空映射: {e}")
+        return {}, {}, {}
 
-# 发射场中文名映射
-LAUNCH_SITE_MAP = {
-    'Jiuquan': '酒泉卫星发射中心',
-    'Taiyuan': '太原卫星发射中心',
-    'Wenchang': '文昌航天发射场',
-    'Xichang': '西昌卫星发射中心',
-    'Cape Canaveral': '卡纳维拉尔角',
-    'Kennedy Space Center': '肯尼迪航天中心',
-    'Vandenberg': '范登堡太空军基地',
-    'Boca Chica': '博卡奇卡星舰基地',
-    'Kourou': '库鲁航天中心',
-    'Baikonur': '拜科努尔航天中心',
-    'Vostochny': '东方港航天发射场',
-    'Plesetsk': '普列谢茨克航天发射场',
-    'Tanegashima': '种子岛宇宙中心',
-    'Uchinoura': '内之浦宇宙空间观测所',
-    'Naro': '罗老宇航中心',
-    'Satish Dhawan': '萨蒂什·达万航天中心',
-    'Wallops': '瓦洛普斯飞行设施',
-    'Rocket Lab': '火箭实验室发射场',
-}
 
-# 火箭中文名映射
-ROCKET_NAME_MAP = {
-    'Long March': '长征',
-    'Falcon 9': '猎鹰9号',
-    'Falcon Heavy': '猎鹰重型',
-    'Starship': '星舰',
-    'Zhuque': '朱雀',
-    'Kuaizhou': '快舟',
-    'Jielong': '捷龙',
-    'Ceres': '谷神星',
-    'Ariane': '阿丽亚娜',
-    'Soyuz': '联盟号',
-    'Proton': '质子号',
-    'Angara': '安加拉',
-    'H-II': 'H-II',
-    'H3': 'H3',
-    'Electron': '电子号',
-    'Neutron': '中子号',
-    'Atlas': '宇宙神',
-    'Vulcan': '火神',
-    'Delta': '德尔塔',
-    'Antares': '安塔瑞斯',
-    'Pegasus': '飞马座',
-    'Minotaur': '米诺陶',
-    'GSLV': 'GSLV',
-    'PSLV': 'PSLV',
-    'SSLV': 'SSLV',
-    'New Glenn': '新格伦',
-    'New Shepard': '新谢泼德',
-    'Block 5': 'Block 5',
-    'Block 2': 'Block 2',
-    'V3': 'V3',
-    'Nuri': '世界号',
-    'Mir': '和平号',
-    'Spectrum': '光谱号',
-    'Themis': '忒弥斯',
-    'Vega': '织女星',
-    'Pallas': '帕拉斯',
-    'HANBIT': '韩比特',
-    'Haste': '极速号',
-    'Firefly Alpha': '萤火虫阿尔法',
-    'Firefly': '萤火虫',
-    'Alpha': '阿尔法',
-    'Rocket': '火箭实验室',
-    'Transporter': '运输者',
-    'Starlink': '星链',
-    'Crew': '载人',
-    'Cygnus': '天鹅座',
-    'Dragon': '龙飞船',
-    'Progress': '进步号',
-    'Tacsat': '战术卫星',
-    'Sentinel': '哨兵',
-    'GPS': 'GPS',
-    'Galileo': '伽利略',
-    'Gaganyaan': '加冈扬',
-    'Chandrayaan': '月船',
-    'Aditya': '太阳神',
-    'Nancy Grace': '南希·格雷斯',
-    'Roman': '罗曼',
-    'Griffin': '格里芬',
-    'AMAZON': '亚马逊',
-    'LEO': '近地轨道',
-    'Rivada': '里瓦达',
-    'Telesat': '电信卫星',
-    'Lightspeed': '光速',
-    'SDA': '太空发展局',
-    'Tranche': '批次',
-    'Tracking': '跟踪层',
-    'Transport': '传输层',
-    'O3b': 'O3b',
-    'mpower': 'mPOWER',
-    'Globalstar': '全球星',
-    'Hawkeye': '鹰眼',
-    'BlackSky': '黑天',
-    'LoxSat': '液氧卫星',
-    'NeonSAT': '霓虹卫星',
-    'Onward': '前行号',
-    'Upward': '向上号',
-    'Strix': '角鸮',
-    'Lightning God': '雷神',
-    'IQPS': 'IQPS',
-    'Martian Moon': '火卫探测',
-    'MMX': '火卫探测',
-    'HTV': '白鹳',
-    'EOS': '地球观测卫星',
-    'GISAT': '地球同步成像卫星',
-    'IRNSS': '印度区域导航',
-    'NVS': 'NVS',
-    'MTG': '第三代气象卫星',
-    'Demonstrator': '验证机',
-    'T1H': 'T1H',
-    'VC6L': 'VC6L',
-    'N22': 'N22',
-}
+LAUNCH_STATUS_MAP, LAUNCH_SITE_MAP, ROCKET_NAME_MAP = _load_translations()
 
 
 def translate_launch_site(name: str) -> str:

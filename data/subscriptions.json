@@ -1,0 +1,52 @@
+{
+  "subscriptions": [
+    {
+      "id": "demo_sub_001",
+      "name": "中国华东区域危险区订阅",
+      "user_id": "user_pro_001",
+      "area_polygon": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              115.0,
+              28.0
+            ],
+            [
+              125.0,
+              28.0
+            ],
+            [
+              125.0,
+              42.0
+            ],
+            [
+              115.0,
+              42.0
+            ],
+            [
+              115.0,
+              28.0
+            ]
+          ]
+        ]
+      },
+      "fir_codes": [
+        "ZSHA",
+        "ZBPE"
+      ],
+      "keywords": [
+        "DANGER",
+        "ROCKET",
+        "MISSILE"
+      ],
+      "channels": [
+        "email",
+        "webhook"
+      ],
+      "email": "pilot@example.com",
+      "webhook_url": "https://example.com/webhook/notam",
+      "created_at": "2026-08-18T00:00:00+00:00"
+    }
+  ]
+}

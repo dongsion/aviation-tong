@@ -2,7 +2,7 @@
 NOTAM通用解析工具 - 坐标提取、时间解析、类型分类
 """
 import re
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import List, Tuple, Optional
 
 
@@ -73,14 +73,15 @@ def parse_time_window(time_text: str) -> Tuple[Optional[float], Optional[float]]
     """
     解析时间区间
     格式: '25 NOV 04:01 2025 UNTIL 25 NOV 04:41 2025'
-    返回: (开始时间戳, 结束时间戳)
+    返回: (开始时间戳, 结束时间戳) — 统一使用 UTC 时间戳
     """
     try:
         parts = str(time_text).split(" UNTIL ")
         if len(parts) != 2:
             return None, None
-        start = datetime.strptime(parts[0].strip(), "%d %b %H:%M %Y").timestamp()
-        end = datetime.strptime(parts[1].strip(), "%d %b %H:%M %Y").timestamp()
+        # NOTAM 时间使用 UTC，显式指定 tzinfo=timezone.utc 确保时间戳一致
+        start = datetime.strptime(parts[0].strip(), "%d %b %H:%M %Y").replace(tzinfo=timezone.utc).timestamp()
+        end = datetime.strptime(parts[1].strip(), "%d %b %H:%M %Y").replace(tzinfo=timezone.utc).timestamp()
         return start, end
     except Exception:
         return None, None
@@ -99,9 +100,11 @@ def extract_altitude(raw_message: str) -> str:
     if match:
         altitudes = match.group(1).split('/')
         lower, upper = int(altitudes[0]), int(altitudes[1])
-        # 100英尺 -> 米
-        lower_m = round(lower * 0.3048) * 100
-        upper_m = round(upper * 0.3048) * 100
+        # NOTAM 高度单位为 100 英尺，转换为米
+        lower_ft = lower * 100
+        upper_ft = upper * 100
+        lower_m = round(lower_ft * 0.3048)
+        upper_m = round(upper_ft * 0.3048)
         if upper == 999:
             return f"{lower_m} 米 ~ 无限制"
         return f"{lower_m} ~ {upper_m} 米"

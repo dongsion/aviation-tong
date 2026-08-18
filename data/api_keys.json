@@ -1,0 +1,28 @@
+{
+  "users": [
+    {
+      "user_id": "user_free_001",
+      "tier": "free",
+      "api_key": "ak_demo_free_000000000000000000001",
+      "name": "免费示例用户"
+    },
+    {
+      "user_id": "user_pro_001",
+      "tier": "pro",
+      "api_key": "ak_demo_pro_000000000000000000002",
+      "name": "专业版示例用户"
+    },
+    {
+      "user_id": "user_team_001",
+      "tier": "team",
+      "api_key": "ak_demo_team_00000000000000000003",
+      "name": "团队版示例用户"
+    },
+    {
+      "user_id": "user_ent_001",
+      "tier": "enterprise",
+      "api_key": "ak_demo_ent_000000000000000000004",
+      "name": "企业版示例用户"
+    }
+  ]
+}
