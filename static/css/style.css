@@ -177,6 +177,14 @@ html, body {
     display: none;
 }
 
+/* 折叠时取消 flex 占位，避免留白 */
+.sidebar-section.collapsed {
+    flex: 0 0 auto !important;
+    min-height: 0 !important;
+    max-height: 50px;
+    overflow: visible;
+}
+
 .sidebar-section .section-title:hover {
     background: rgba(41, 98, 255, 0.15);
 }
