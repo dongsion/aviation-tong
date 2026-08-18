@@ -531,53 +531,57 @@ html, body {
    响应式 — 移动端适配
    ============================================================ */
 @media (max-width: 768px) {
-    /* 顶栏：改为自然流动，不再固定 */
+    /* 顶栏：Logo 行 + 紧凑统计条 */
     .top-bar {
         position: relative;
         height: auto;
         flex-direction: column;
         align-items: stretch;
-        padding: 8px 12px;
-        gap: 6px;
+        padding: 6px 12px;
+        gap: 4px;
         box-shadow: none;
         border-bottom: 1px solid var(--border);
     }
 
     .top-bar .logo {
         justify-content: center;
-        font-size: 17px;
+        font-size: 16px;
         gap: 6px;
     }
 
     .top-bar .logo .icon {
-        font-size: 20px;
+        font-size: 18px;
     }
 
     .top-bar .subtitle {
         display: none;
     }
 
+    /* 统计条：横向排列，紧凑间距 */
     .top-bar .status {
         margin-left: 0;
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 6px 12px;
-    }
-
-    .top-bar .status-item {
-        font-size: 12px;
+        display: flex;
+        flex-wrap: nowrap;
+        justify-content: space-between;
+        align-items: center;
         gap: 4px;
     }
 
-    /* 隐藏"实时连接"和"更新时间"，节省空间 */
-    .top-bar .status .status-item:nth-child(1),
-    .top-bar .status .status-item:nth-child(6) {
-        display: none;
+    .top-bar .status-item {
+        font-size: 11px;
+        gap: 3px;
+        white-space: nowrap;
+    }
+
+    /* 隐藏次要信息 */
+    .mobile-hide {
+        display: none !important;
     }
 
     .top-bar .btn-refresh {
-        padding: 5px 12px;
-        font-size: 12px;
+        padding: 4px 10px;
+        font-size: 11px;
+        flex-shrink: 0;
     }
 
     /* 主布局：上下分割，侧边栏可滚动 */

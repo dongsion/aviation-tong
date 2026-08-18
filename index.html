@@ -10,10 +10,10 @@
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✈️</text></svg>">
 
     <!-- Leaflet CSS (本地) -->
-    <link rel="stylesheet" href="static/leaflet/leaflet.css?v=2">
+    <link rel="stylesheet" href="static/leaflet/leaflet.css?v=3">
 
     <!-- 自定义 CSS -->
-    <link rel="stylesheet" href="static/css/style.css?v=2">
+    <link rel="stylesheet" href="static/css/style.css?v=3">
 </head>
 <body>
 
@@ -40,10 +40,10 @@
             <div class="status-item">
                 🚀发射: <span id="stat-launches" style="font-weight:700;color:#FFAB00">0</span>
             </div>
-            <div class="status-item">
+            <div class="status-item mobile-hide">
                 来源: <span id="stat-source" style="font-weight:700">N/A</span>
             </div>
-            <div class="status-item">
+            <div class="status-item mobile-hide">
                 更新: <span id="stat-update" style="font-weight:600">--</span>
             </div>
             <button class="btn-refresh" id="btn-refresh" onclick="manualRefresh()">
@@ -123,7 +123,7 @@
     </div>
 
     <!-- Leaflet JS (本地) + 自定义 JS -->
-    <script src="static/leaflet/leaflet.js?v=2"></script>
-    <script src="static/js/map.js?v=2"></script>
+    <script src="static/leaflet/leaflet.js?v=3"></script>
+    <script src="static/js/map.js?v=3"></script>
 </body>
 </html>
