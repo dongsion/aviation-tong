@@ -95,6 +95,118 @@ function initMap() {
 
     notamLayer = L.layerGroup().addTo(map);
     launchLayer = L.layerGroup().addTo(map);
+
+    // 弹窗可拖拽
+    enablePopupDrag();
+}
+
+// ============================================================
+// 弹窗拖拽功能
+// ============================================================
+function enablePopupDrag() {
+    map.on('popupopen', function(e) {
+        const popup = e.popup;
+        const wrapper = popup.getElement();
+        if (!wrapper) return;
+
+        const dragHandle = wrapper.querySelector('.leaflet-popup-content-wrapper');
+        if (!dragHandle) return;
+
+        let isDragging = false;
+        let startX = 0, startY = 0;
+        let popupStartX = 0, popupStartY = 0;
+
+        // 鼠标按下
+        dragHandle.addEventListener('mousedown', function(e) {
+            // 不拦截关闭按钮和链接的点击
+            if (e.target.closest('.leaflet-popup-close-button') || e.target.tagName === 'A') return;
+
+            isDragging = true;
+            startX = e.clientX;
+            startY = e.clientY;
+
+            const popupEl = wrapper.querySelector('.leaflet-popup');
+            if (popupEl) {
+                const transform = popupEl.style.transform || '';
+                const match = transform.match(/translate3d\((-?\d+)px,\s*(-?\d+)px/);
+                popupStartX = match ? parseInt(match[1]) : 0;
+                popupStartY = match ? parseInt(match[2]) : 0;
+                popupEl.classList.add('dragging');
+            }
+
+            e.preventDefault();
+        });
+
+        // 鼠标移动
+        document.addEventListener('mousemove', function(e) {
+            if (!isDragging) return;
+
+            const dx = e.clientX - startX;
+            const dy = e.clientY - startY;
+
+            const popupEl = wrapper.querySelector('.leaflet-popup');
+            if (popupEl) {
+                popupEl.style.transform = `translate3d(${popupStartX + dx}px, ${popupStartY + dy}px, 0)`;
+            }
+        });
+
+        // 鼠标释放
+        document.addEventListener('mouseup', function(e) {
+            if (!isDragging) return;
+            isDragging = false;
+
+            const popupEl = wrapper.querySelector('.leaflet-popup');
+            if (popupEl) {
+                popupEl.classList.remove('dragging');
+            }
+        });
+
+        // 触摸支持（移动端）
+        dragHandle.addEventListener('touchstart', function(e) {
+            if (e.target.closest('.leaflet-popup-close-button') || e.target.tagName === 'A') return;
+
+            const touch = e.touches[0];
+            isDragging = true;
+            startX = touch.clientX;
+            startY = touch.clientY;
+
+            const popupEl = wrapper.querySelector('.leaflet-popup');
+            if (popupEl) {
+                const transform = popupEl.style.transform || '';
+                const match = transform.match(/translate3d\((-?\d+)px,\s*(-?\d+)px/);
+                popupStartX = match ? parseInt(match[1]) : 0;
+                popupStartY = match ? parseInt(match[2]) : 0;
+                popupEl.classList.add('dragging');
+            }
+
+            e.preventDefault();
+        }, { passive: false });
+
+        document.addEventListener('touchmove', function(e) {
+            if (!isDragging) return;
+
+            const touch = e.touches[0];
+            const dx = touch.clientX - startX;
+            const dy = touch.clientY - startY;
+
+            const popupEl = wrapper.querySelector('.leaflet-popup');
+            if (popupEl) {
+                popupEl.style.transform = `translate3d(${popupStartX + dx}px, ${popupStartY + dy}px, 0)`;
+            }
+
+            e.preventDefault();
+        }, { passive: false });
+
+        document.addEventListener('touchend', function(e) {
+            if (!isDragging) return;
+            isDragging = false;
+
+            const popupEl = wrapper.querySelector('.leaflet-popup');
+            if (popupEl) {
+                popupEl.classList.remove('dragging');
+            }
+        });
+    });
 }
 
 // ============================================================
@@ -301,8 +413,15 @@ function buildLaunchPopup(props, color) {
     const liveBadge = props.webcast_live ? '<span class="popup-badge" style="background:#ff1744;margin-left:4px;">🔴 直播中</span>' : '';
     const desc = props.mission_desc ? `<div class="popup-raw">${props.mission_desc}</div>` : '';
 
+    // 火箭/任务图片
+    const imgUrl = props.image_url || '';
+    const imgHtml = imgUrl
+        ? `<div class="popup-image-wrapper"><img src="${imgUrl}" alt="${props.name || ''}" class="popup-image" onerror="this.parentElement.style.display='none'"></div>`
+        : '';
+
     return `
         <div class="popup-content">
+            ${imgHtml}
             <div class="popup-header">
                 <span class="popup-badge" style="background:${color}">${props.status_cn || props.status || '未知'}</span>
                 ${liveBadge}

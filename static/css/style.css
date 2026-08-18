@@ -402,6 +402,40 @@ html, body {
     max-width: 400px;
 }
 
+/* 弹窗图片 */
+.popup-image-wrapper {
+    width: 100%;
+    margin-bottom: 10px;
+    border-radius: var(--radius);
+    overflow: hidden;
+    background: var(--bg-primary);
+}
+
+.popup-image {
+    width: 100%;
+    height: 160px;
+    object-fit: cover;
+    display: block;
+}
+
+/* 弹窗可拖拽 */
+.leaflet-popup-content-wrapper {
+    cursor: grab;
+}
+
+.leaflet-popup-content-wrapper:active {
+    cursor: grabbing;
+}
+
+.leaflet-popup.dragging {
+    transition: none;
+}
+
+.leaflet-popup.dragging .leaflet-popup-tip,
+.leaflet-popup.dragging .leaflet-popup-close-button {
+    pointer-events: none;
+}
+
 .popup-header {
     display: flex;
     align-items: center;
