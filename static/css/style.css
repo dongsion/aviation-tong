@@ -162,6 +162,21 @@ html, body {
     user-select: none;
 }
 
+.section-arrow {
+    margin-left: auto;
+    font-size: 10px;
+    transition: transform 0.3s ease;
+    color: var(--text-muted);
+}
+
+.sidebar-section.collapsed .section-arrow {
+    transform: rotate(-90deg);
+}
+
+.sidebar-section.collapsed .section-content {
+    display: none;
+}
+
 .sidebar-section .section-title:hover {
     background: rgba(41, 98, 255, 0.15);
 }

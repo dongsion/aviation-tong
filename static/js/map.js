@@ -66,6 +66,16 @@ function init() {
     autoRefreshTimer = setInterval(loadData, 5 * 60 * 1000);
 }
 
+// 折叠/展开侧边栏区块
+function toggleSection(sectionId) {
+    const section = document.getElementById(sectionId);
+    if (section) {
+        section.classList.toggle('collapsed');
+        // 触发地图重绘，防止空白
+        if (map) setTimeout(() => map.invalidateSize(), 300);
+    }
+}
+
 function initMap() {
     map = L.map('map', {
         center: [30, 115],

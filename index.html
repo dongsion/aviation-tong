@@ -61,10 +61,11 @@
         <div class="sidebar">
 
             <!-- 图例区 -->
-            <div class="sidebar-section">
-                <div class="section-title">
+            <div class="sidebar-section" id="section-legend">
+                <div class="section-title" onclick="toggleSection('section-legend')">
                     <span>🎨</span>
                     <span>颜色说明</span>
+                    <span class="section-arrow">▼</span>
                 </div>
                 <div class="section-content" style="max-height:320px;overflow-y:auto;">
                     <div class="legend" id="legend">
@@ -76,10 +77,11 @@
             </div>
 
             <!-- 发射计划列表 -->
-            <div class="sidebar-section" style="flex:1;display:flex;flex-direction:column;overflow:hidden;min-height:200px;">
-                <div class="section-title">
+            <div class="sidebar-section" id="section-launches" style="flex:1;display:flex;flex-direction:column;overflow:hidden;min-height:200px;">
+                <div class="section-title" onclick="toggleSection('section-launches')">
                     <span>🚀</span>
                     <span>火箭发射计划</span>
+                    <span class="section-arrow">▼</span>
                 </div>
                 <div class="section-content" id="launch-list" style="flex:1;overflow-y:auto;">
                     <div class="notam-empty">加载中...</div>
@@ -87,10 +89,11 @@
             </div>
 
             <!-- NOTAM 列表 -->
-            <div class="sidebar-section" style="flex:1;display:flex;flex-direction:column;overflow:hidden;min-height:150px;">
-                <div class="section-title">
+            <div class="sidebar-section" id="section-notams" style="flex:1;display:flex;flex-direction:column;overflow:hidden;min-height:150px;">
+                <div class="section-title" onclick="toggleSection('section-notams')">
                     <span>📋</span>
                     <span>NOTAM 列表</span>
+                    <span class="section-arrow">▼</span>
                 </div>
                 <div class="section-content" id="notam-list" style="flex:1;overflow-y:auto;">
                     <div class="notam-empty">加载中...</div>
@@ -98,7 +101,12 @@
             </div>
 
             <!-- 说明 -->
-            <div class="sidebar-section">
+            <div class="sidebar-section" id="section-info">
+                <div class="section-title" onclick="toggleSection('section-info')">
+                    <span>💡</span>
+                    <span>使用说明</span>
+                    <span class="section-arrow">▼</span>
+                </div>
                 <div class="section-content" style="font-size:11px;color:var(--text-muted);line-height:1.6;">
                     <div style="margin-bottom:4px;">
                         <strong>提示:</strong> 点击图例可筛选区域类型或发射计划，点击列表项可定位到地图位置。
