@@ -40,6 +40,7 @@ DATA_DIR = os.path.join(REPO_ROOT, 'data')
 DATA_FILE = os.path.join(DATA_DIR, 'notams.json')
 LEGEND_FILE = os.path.join(DATA_DIR, 'legend.json')
 LAUNCHES_FILE = os.path.join(DATA_DIR, 'launches.json')
+SATELLITES_FILE = os.path.join(DATA_DIR, 'satellites.json')
 
 
 # ============================================================
@@ -447,6 +448,81 @@ def fetch_launches(config) -> None:
         with open(LAUNCHES_FILE, 'w', encoding='utf-8') as f:
             json.dump(geojson, f, ensure_ascii=False, indent=2)
         logger.info(f"示例发射计划已保存到: {LAUNCHES_FILE}")
+
+
+def fetch_satellites(config) -> None:
+    """获取在轨卫星 TLE 数据并保存到 satellites.json"""
+    logger.info("-" * 40)
+    logger.info("开始获取在轨卫星 TLE 数据...")
+
+    try:
+        from fetch.sources.satellites.client import CelesTrakSource, SATELLITE_GROUPS
+
+        sat_config = {}
+        if config.has_section('SATELLITES'):
+            sat_config = dict(config.items('SATELLITES'))
+
+        # 默认只获取主要分组（避免数据量太大）
+        if 'groups' not in sat_config:
+            sat_config['groups'] = 'stations,visual,starlink,weather,gps,beidou'
+
+        source = CelesTrakSource(sat_config)
+        result = source.fetch()
+        satellites = getattr(result, 'satellite_records', [])
+
+        if not satellites:
+            logger.warning("未获取到卫星 TLE 数据")
+            return
+
+        # 转换为 JSON 格式
+        sat_list = []
+        for sat in satellites:
+            sat_list.append({
+                'name': sat.satellite_name.strip(),
+                'norad_id': sat.norad_id,
+                'tle1': sat.tle_line1,
+                'tle2': sat.tle_line2,
+                'category': sat.category,
+                'category_cn': SATELLITE_GROUPS.get(sat.category, sat.category),
+            })
+
+        # 去重（不同分组可能有重复）
+        seen_ids = set()
+        unique_sats = []
+        for sat in sat_list:
+            if sat['norad_id'] not in seen_ids:
+                seen_ids.add(sat['norad_id'])
+                unique_sats.append(sat)
+
+        # 按类别统计
+        category_counts = {}
+        for sat in unique_sats:
+            cat = sat['category']
+            category_counts[cat] = category_counts.get(cat, 0) + 1
+
+        logger.info(f"卫星统计:")
+        for cat, count in sorted(category_counts.items(), key=lambda x: -x[1]):
+            cat_cn = SATELLITE_GROUPS.get(cat, cat)
+            logger.info(f"  {cat_cn}: {count} 颗")
+
+        # 保存
+        output = {
+            "metadata": {
+                "title": "航空通 - 在轨卫星实时追踪",
+                "updated_at": datetime.now(timezone.utc).isoformat(),
+                "total": len(unique_sats),
+                "data_source": "CelesTrak",
+                "category_counts": category_counts,
+            },
+            "satellites": unique_sats,
+        }
+
+        with open(SATELLITES_FILE, 'w', encoding='utf-8') as f:
+            json.dump(output, f, ensure_ascii=False, indent=2)
+        logger.info(f"卫星 TLE 数据已保存到: {SATELLITES_FILE} ({len(unique_sats)} 颗)")
+
+    except Exception as e:
+        logger.error(f"获取卫星 TLE 数据失败: {e}")
 
 
 def launch_to_geojson(launch) -> dict:
@@ -898,6 +974,12 @@ def main():
     # 独立运行，即使 NOTAM 抓取失败也能正常获取
     # ============================================================
     fetch_launches(config)
+
+    # ============================================================
+    # 获取在轨卫星 TLE 数据 (CelesTrak API)
+    # 用于实时卫星追踪功能
+    # ============================================================
+    fetch_satellites(config)
 
     logger.info("=" * 60)
     logger.info("数据处理完成!")

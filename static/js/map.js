@@ -64,6 +64,10 @@ function init() {
     initMap();
     loadData();
     autoRefreshTimer = setInterval(loadData, 5 * 60 * 1000);
+    // 初始化卫星追踪模块（预加载数据，不渲染）
+    if (typeof initSatellites === 'function') {
+        initSatellites();
+    }
 }
 
 // 折叠/展开侧边栏区块
@@ -428,7 +432,6 @@ function renderLaunchMarkers() {
 function buildLaunchPopup(props, color) {
     const flag = getFlag(props.country_code);
     const liveBadge = props.webcast_live ? '<span class="popup-badge" style="background:#ff1744;margin-left:4px;">🔴 直播中</span>' : '';
-    const desc = props.mission_desc ? `<div class="popup-raw">${props.mission_desc}</div>` : '';
 
     // 火箭/任务图片（本地缓存优先 + 远程回退 + 淡入）
     const localImg = props.image_url || '';
@@ -472,7 +475,7 @@ function buildLaunchPopup(props, color) {
                 <div class="info-row"><span class="info-label">发射场</span><span class="info-value">${flag} ${props.location_cn || props.location_name || 'N/A'}</span></div>
                 <div class="info-row"><span class="info-label">发射台</span><span class="info-value">${props.pad_name || 'N/A'}</span></div>
             </div>
-            ${desc}
+            ${props.mission_desc ? `<div class="popup-payload"><div class="payload-title">📦 搭载载荷</div><div class="payload-desc">${props.mission_desc}</div></div>` : ''}
         </div>
     `;
 }
@@ -700,6 +703,7 @@ function updateStatusBar() {
     const updateEl = document.getElementById('stat-update');
     const sourceEl = document.getElementById('stat-source');
     const launchEl = document.getElementById('stat-launches');
+    const satEl = document.getElementById('stat-satellites');
 
     if (totalEl) totalEl.textContent = allFeatures.length;
 
@@ -707,6 +711,9 @@ function updateStatusBar() {
     if (activeEl) activeEl.textContent = activeCount;
 
     if (launchEl) launchEl.textContent = allLaunches.length;
+    if (satEl && typeof satelliteData !== 'undefined') {
+        satEl.textContent = satelliteData.length;
+    }
 
     if (updateEl && lastUpdate) {
         const dt = new Date(lastUpdate);
