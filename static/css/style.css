@@ -592,11 +592,10 @@ html, body {
         flex-shrink: 0;
     }
 
-    /* 主布局：上下分割，侧边栏可滚动 */
+    /* 主布局：自然流动 */
     .main-container {
-        flex-direction: column;
-        flex: 1 1 0;
-        min-height: 0;
+        display: block;
+        height: auto;
         margin-top: 0;
         padding-bottom: env(safe-area-inset-bottom, 0px);
     }
@@ -604,11 +603,10 @@ html, body {
     .sidebar {
         width: 100%;
         min-width: 100%;
-        max-height: 50vh;
+        max-height: 45vh;
         height: auto;
         border-right: none;
         border-bottom: 1px solid var(--border);
-        flex: 0 0 auto;
         overflow-y: auto;
     }
 
@@ -623,7 +621,8 @@ html, body {
 
     /* 地图占满剩余空间 */
     .map-container {
-        flex: 1 1 auto;
+        width: 100%;
+        height: calc(100vh - 220px);
         min-height: 50vh;
     }
 
@@ -704,12 +703,13 @@ html, body {
     }
 }
 
-/* 移动端 body 布局：flex 纵向排列 */
+/* 移动端 body 布局 */
 @media (max-width: 768px) {
     html, body {
-        overflow: hidden;
-        display: flex;
-        flex-direction: column;
+        overflow-y: auto;
+        overflow-x: hidden;
+        display: block;
+        height: 100%;
     }
 }
 
