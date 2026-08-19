@@ -2,63 +2,16 @@
   "type": "FeatureCollection",
   "metadata": {
     "title": "航空通 - NOTAM 航空通告",
-    "updated_at": "2026-08-19T07:32:25.976480+00:00",
-    "total_features": 4,
+    "updated_at": "2026-08-19T08:28:03.111857+00:00",
+    "total_features": 3,
     "data_source": "SAMPLE",
     "type_counts": {
-      "tfr": 1,
       "warning": 1,
       "prohibited": 1,
       "airway": 1
     }
   },
   "features": [
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Polygon",
-        "coordinates": [
-          [
-            [
-              113.3,
-              23.1
-            ],
-            [
-              113.5,
-              22.5
-            ],
-            [
-              114.2,
-              22.8
-            ],
-            [
-              114.0,
-              23.4
-            ],
-            [
-              113.3,
-              23.1
-            ]
-          ]
-        ]
-      },
-      "properties": {
-        "notam_code": "TFR9012/25",
-        "type": "tfr",
-        "type_name": "临时飞行限制",
-        "type_desc": "临时飞行限制(TFR)",
-        "color": "#2962FF",
-        "fir": "ZGZU",
-        "source": "SAMPLE",
-        "time": "18 AUG 08:00 2026 UNTIL 19 AUG 08:00 2026",
-        "start": "2026-08-18 08:00 UTC",
-        "end": "2026-08-19 08:00 UTC",
-        "is_active": true,
-        "altitude": "0 ~ 3000 米",
-        "raw_message": "TFR9012/25 NOTAMN TEMPORARY FLIGHT RESTRICTION IN ZGZU FIR. NO FLIGHT OPERATIONS PERMITTED. 18 AUG 08:00 2026 UNTIL 19 AUG 08:00 2026.",
-        "is_sample": true
-      }
-    },
     {
       "type": "Feature",
       "geometry": {
