@@ -118,6 +118,13 @@ function init() {
     if (typeof initPWA === 'function') {
         initPWA();
     }
+    // 发射倒计时每分钟实时更新（无需重新加载数据）
+    setInterval(() => {
+        if (!document.hidden && allLaunches.length > 0) {
+            renderLaunchList();
+            renderLaunchMarkers();
+        }
+    }, 60000);
     // 页面可见性检测 — 后台标签暂停自动刷新，节省带宽
     document.addEventListener('visibilitychange', () => {
         if (document.hidden) {
@@ -408,6 +415,68 @@ async function loadData() {
 }
 
 // ============================================================
+// 动态发射状态计算 — 根据当前时间实时更新倒计时和状态
+// ============================================================
+
+/**
+ * 动态计算发射倒计时
+ * @param {string} net - ISO 时间字符串 (如 "2026-08-18T23:35:00Z")
+ * @returns {{ countdown: string, isUpcoming: boolean, statusOverride: string|null, statusColor: string|null }}
+ */
+function computeLaunchStatus(net) {
+    if (!net) return { countdown: 'N/A', isUpcoming: false, statusOverride: null, statusColor: null };
+
+    const launchTime = new Date(net).getTime();
+    if (isNaN(launchTime)) return { countdown: 'N/A', isUpcoming: false, statusOverride: null, statusColor: null };
+
+    const now = Date.now();
+    const diff = launchTime - now;
+
+    if (diff > 0) {
+        // 尚未发射 — 计算倒计时
+        const days = Math.floor(diff / 86400000);
+        const hours = Math.floor((diff % 86400000) / 3600000);
+        const mins = Math.floor((diff % 3600000) / 60000);
+        let countdown;
+        if (days > 0) countdown = `T-${days}天 ${hours}时 ${mins}分`;
+        else if (hours > 0) countdown = `T-${hours}时 ${mins}分`;
+        else countdown = `T-${mins}分`;
+        return { countdown, isUpcoming: true, statusOverride: null, statusColor: null };
+    } else {
+        // 已过发射时间
+        const elapsed = -diff;
+        const hoursPassed = elapsed / 3600000;
+
+        if (hoursPassed < 0.5) {
+            // 30 分钟内 — 正在发射
+            return { countdown: '🚀 发射中', isUpcoming: false, statusOverride: '发射中', statusColor: '#FF1744' };
+        } else if (hoursPassed < 24) {
+            // 24 小时内 — 已发射，等待结果确认
+            return { countdown: '已发射', isUpcoming: false, statusOverride: '已发射', statusColor: '#2979FF' };
+        } else {
+            // 超过 24 小时 — 视为已结束
+            return { countdown: '已结束', isUpcoming: false, statusOverride: '已结束', statusColor: '#546E7A' };
+        }
+    }
+}
+
+/**
+ * 获取发射状态显示文本（动态覆盖静态 status_cn）
+ */
+function getLaunchStatusDisplay(props) {
+    const dyn = computeLaunchStatus(props.net);
+    if (dyn.statusOverride) {
+        return { text: dyn.statusOverride, color: dyn.statusColor, isUpcoming: dyn.isUpcoming, countdown: dyn.countdown };
+    }
+    return {
+        text: props.status_cn || props.status || '未知',
+        color: null,
+        isUpcoming: dyn.isUpcoming,
+        countdown: dyn.countdown,
+    };
+}
+
+// ============================================================
 // NOTAM 地图渲染
 // ============================================================
 function renderMapFeatures() {
@@ -520,14 +589,16 @@ function renderLaunchMarkers() {
         const lon = geometry.coordinates[0];
         const lat = geometry.coordinates[1];
 
-        // 根据状态选择颜色
+        // 根据状态选择颜色 — 使用动态状态计算
+        const dynStatus = getLaunchStatusDisplay(props);
         const isGo = props.status && props.status.toLowerCase().includes('go');
         const isTBD = props.status && (props.status.toLowerCase().includes('tbd') || props.status.toLowerCase().includes('deter'));
         const isSuccess = props.status && props.status.toLowerCase().includes('success');
         const isScrub = props.status && props.status.toLowerCase().includes('scrub');
 
         let color = '#FFD600'; // 默认黄色
-        if (isGo) color = '#00E676';      // 绿色 - 确认发射
+        if (dynStatus.color) color = dynStatus.color;     // 动态状态优先
+        else if (isGo) color = '#00E676';      // 绿色 - 确认发射
         else if (isTBD) color = '#FFAB00'; // 橙黄 - 时间待定
         else if (isSuccess) color = '#2979FF'; // 蓝色 - 已成功
         else if (isScrub) color = '#FF1744';   // 红色 - 已取消
@@ -566,6 +637,7 @@ function renderLaunchMarkers() {
 
 function buildLaunchPopup(props, color) {
     const flag = getFlag(props.country_code);
+    const dynStatus = getLaunchStatusDisplay(props);
     const liveBadge = props.webcast_live ? '<span class="popup-badge" style="background:#ff1744;margin-left:4px;">🔴 直播中</span>' : '';
 
     // 火箭/任务图片（本地缓存优先 + 远程回退 + 淡入）
@@ -595,7 +667,7 @@ function buildLaunchPopup(props, color) {
         <div class="popup-content">
             ${imgHtml}
             <div class="popup-header">
-                <span class="popup-badge" style="background:${color}">${escapeHtml(props.status_cn || props.status || '未知')}</span>
+                <span class="popup-badge" style="background:${color}">${escapeHtml(dynStatus.text)}</span>
                 ${liveBadge}
             </div>
             <div class="popup-code" style="margin-bottom:6px;">🚀 ${escapeHtml(props.name || 'N/A')}</div>
@@ -605,7 +677,7 @@ function buildLaunchPopup(props, color) {
                 <div class="info-row"><span class="info-label">任务类型</span><span class="info-value">${escapeHtml(props.mission_type || 'N/A')}</span></div>
                 <div class="info-row"><span class="info-label">轨道</span><span class="info-value">${escapeHtml(props.orbit || 'N/A')}</span></div>
                 <div class="info-row"><span class="info-label">发射时间</span><span class="info-value" style="color:#00e676;font-weight:700">${escapeHtml(props.net_display || 'N/A')}</span></div>
-                <div class="info-row"><span class="info-label">倒计时</span><span class="info-value" style="color:${props.is_upcoming ? '#FFD600' : '#546E7A'};font-weight:700">${escapeHtml(props.countdown || 'N/A')}</span></div>
+                <div class="info-row"><span class="info-label">倒计时</span><span class="info-value" style="color:${dynStatus.isUpcoming ? '#FFD600' : (dynStatus.color || '#546E7A')};font-weight:700">${escapeHtml(dynStatus.countdown)}</span></div>
                 <div class="info-row"><span class="info-label">服务商</span><span class="info-value">${escapeHtml(props.provider || 'N/A')} (${escapeHtml(props.provider_type || '')})</span></div>
                 <div class="info-row"><span class="info-label">发射场</span><span class="info-value">${flag} ${escapeHtml(props.location_cn || props.location_name || 'N/A')}</span></div>
                 <div class="info-row"><span class="info-label">发射台</span><span class="info-value">${escapeHtml(props.pad_name || 'N/A')}</span></div>
@@ -842,20 +914,22 @@ function renderLaunchList() {
     sorted.forEach(feature => {
         const props = feature.properties || {};
         const flag = getFlag(props.country_code);
+        const dynStatus = getLaunchStatusDisplay(props);
         const isGo = (props.status || '').toLowerCase().includes('go');
-        const color = isGo ? '#00E676' : '#FFAB00';
+        // 动态状态颜色优先
+        const cardColor = dynStatus.color || (isGo ? '#00E676' : '#FFAB00');
 
         const card = document.createElement('div');
         card.className = 'launch-card';
         card.dataset.slug = props.slug || props.name || '';
-        card.style.borderLeftColor = color;
+        card.style.borderLeftColor = cardColor;
         card.innerHTML = `
             <div class="launch-name">${flag} ${escapeHtml(props.rocket_cn || props.rocket || 'N/A')}</div>
             <div class="launch-mission">📡 ${escapeHtml(props.mission_name || 'N/A')}</div>
-            <div class="launch-time" style="color:${isGo ? '#00e676' : '#FFAB00'};font-weight:700">
+            <div class="launch-time" style="color:${cardColor};font-weight:700">
                 ⏰ ${escapeHtml(props.net_display || 'N/A')}
             </div>
-            <div class="launch-countdown">${escapeHtml(props.countdown || '')}</div>
+            <div class="launch-countdown" style="color:${dynStatus.isUpcoming ? '#FFD600' : (dynStatus.color || '#546E7A')};font-weight:700">${escapeHtml(dynStatus.countdown)}</div>
             <span class="notam-fir">${escapeHtml(props.location_cn || props.location_name || '')}</span>
         `;
 
