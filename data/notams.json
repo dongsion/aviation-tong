@@ -2,15 +2,14 @@
   "type": "FeatureCollection",
   "metadata": {
     "title": "航空通 - NOTAM 航空通告",
-    "updated_at": "2026-08-18T23:44:34.932669+00:00",
-    "total_features": 5,
+    "updated_at": "2026-08-19T00:51:15.689654+00:00",
+    "total_features": 4,
     "data_source": "SAMPLE",
     "type_counts": {
       "tfr": 1,
       "warning": 1,
       "prohibited": 1,
-      "airway": 1,
-      "other": 1
+      "airway": 1
     }
   },
   "features": [
@@ -195,52 +194,6 @@
         "is_active": true,
         "altitude": "3000 ~ 6000 米",
         "raw_message": "A2345/25 NOTAMN AIRWAY ROUTE CHANGE DUE TO NAVIGATION AID MAINTENANCE. 18 AUG 00:00 2026 UNTIL 22 AUG 00:00 2026.",
-        "is_sample": true
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Polygon",
-        "coordinates": [
-          [
-            [
-              126.0,
-              45.5
-            ],
-            [
-              126.3,
-              45.0
-            ],
-            [
-              127.0,
-              45.2
-            ],
-            [
-              126.7,
-              45.7
-            ],
-            [
-              126.0,
-              45.5
-            ]
-          ]
-        ]
-      },
-      "properties": {
-        "notam_code": "A3456/25",
-        "type": "other",
-        "type_name": "其他通告",
-        "type_desc": "其他类型航空通告",
-        "color": "#546E7A",
-        "fir": "ZYSH",
-        "source": "SAMPLE",
-        "time": "18 AUG 00:00 2026 UNTIL 19 AUG 00:00 2026",
-        "start": "2026-08-18 00:00 UTC",
-        "end": "2026-08-19 00:00 UTC",
-        "is_active": true,
-        "altitude": "0 ~ 5000 米",
-        "raw_message": "A3456/25 NOTAMN TEMPORARY AREA FOR AVIATION OPERATIONS. 18 AUG 00:00 2026 UNTIL 19 AUG 00:00 2026.",
         "is_sample": true
       }
     }
