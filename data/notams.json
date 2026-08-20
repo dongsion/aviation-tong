@@ -2,62 +2,15 @@
   "type": "FeatureCollection",
   "metadata": {
     "title": "航空通 - NOTAM 航空通告",
-    "updated_at": "2026-08-19T23:45:08.264786+00:00",
-    "total_features": 3,
+    "updated_at": "2026-08-20T00:50:37.388626+00:00",
+    "total_features": 2,
     "data_source": "SAMPLE",
     "type_counts": {
-      "warning": 1,
       "prohibited": 1,
       "airway": 1
     }
   },
   "features": [
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Polygon",
-        "coordinates": [
-          [
-            [
-              125.0,
-              31.0
-            ],
-            [
-              125.5,
-              30.0
-            ],
-            [
-              127.0,
-              30.5
-            ],
-            [
-              126.5,
-              31.5
-            ],
-            [
-              125.0,
-              31.0
-            ]
-          ]
-        ]
-      },
-      "properties": {
-        "notam_code": "W3456/25",
-        "type": "warning",
-        "type_name": "警告区",
-        "type_desc": "潜在飞行危险警告区域",
-        "color": "#FFD600",
-        "fir": "ZSHA",
-        "source": "SAMPLE",
-        "time": "18 AUG 00:00 2026 UNTIL 20 AUG 00:00 2026",
-        "start": "2026-08-18 00:00 UTC",
-        "end": "2026-08-20 00:00 UTC",
-        "is_active": true,
-        "altitude": "0 ~ 9000 米",
-        "raw_message": "W3456/25 NOTAMN WARNING AREA ESTABLISHED. POTENTIAL HAZARD TO FLIGHT OPERATIONS. 18 AUG 00:00 2026 UNTIL 20 AUG 00:00 2026.",
-        "is_sample": true
-      }
-    },
     {
       "type": "Feature",
       "geometry": {
