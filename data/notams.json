@@ -2,12 +2,11 @@
   "type": "FeatureCollection",
   "metadata": {
     "title": "航空通 - NOTAM 航空通告",
-    "updated_at": "2026-08-21T23:46:31.926300+00:00",
-    "total_features": 2,
+    "updated_at": "2026-08-22T00:50:56.871512+00:00",
+    "total_features": 1,
     "data_source": "SAMPLE",
     "type_counts": {
-      "prohibited": 1,
-      "airway": 1
+      "prohibited": 1
     }
   },
   "features": [
@@ -54,52 +53,6 @@
         "is_active": true,
         "altitude": "0 ~ 无限制 米",
         "raw_message": "P7890/25 NOTAMN PROHIBITED AREA. NO FLIGHT PERMITTED. 18 AUG 00:00 2026 UNTIL 25 AUG 00:00 2026.",
-        "is_sample": true
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Polygon",
-        "coordinates": [
-          [
-            [
-              120.0,
-              36.0
-            ],
-            [
-              120.5,
-              35.5
-            ],
-            [
-              121.5,
-              35.8
-            ],
-            [
-              121.0,
-              36.3
-            ],
-            [
-              120.0,
-              36.0
-            ]
-          ]
-        ]
-      },
-      "properties": {
-        "notam_code": "A2345/25",
-        "type": "airway",
-        "type_name": "航路变更",
-        "type_desc": "航路调整或导航设施变更",
-        "color": "#00C853",
-        "fir": "ZSHA",
-        "source": "SAMPLE",
-        "time": "18 AUG 00:00 2026 UNTIL 22 AUG 00:00 2026",
-        "start": "2026-08-18 00:00 UTC",
-        "end": "2026-08-22 00:00 UTC",
-        "is_active": true,
-        "altitude": "3000 ~ 6000 米",
-        "raw_message": "A2345/25 NOTAMN AIRWAY ROUTE CHANGE DUE TO NAVIGATION AID MAINTENANCE. 18 AUG 00:00 2026 UNTIL 22 AUG 00:00 2026.",
         "is_sample": true
       }
     }
