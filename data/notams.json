@@ -2,59 +2,10 @@
   "type": "FeatureCollection",
   "metadata": {
     "title": "航空通 - NOTAM 航空通告",
-    "updated_at": "2026-08-24T23:44:39.271686+00:00",
-    "total_features": 1,
+    "updated_at": "2026-08-25T00:53:00.651835+00:00",
+    "total_features": 0,
     "data_source": "SAMPLE",
-    "type_counts": {
-      "prohibited": 1
-    }
+    "type_counts": {}
   },
-  "features": [
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Polygon",
-        "coordinates": [
-          [
-            [
-              106.5,
-              29.5
-            ],
-            [
-              106.8,
-              29.0
-            ],
-            [
-              107.5,
-              29.3
-            ],
-            [
-              107.2,
-              29.8
-            ],
-            [
-              106.5,
-              29.5
-            ]
-          ]
-        ]
-      },
-      "properties": {
-        "notam_code": "P7890/25",
-        "type": "prohibited",
-        "type_name": "禁航区",
-        "type_desc": "完全禁止飞行的区域",
-        "color": "#AA00FF",
-        "fir": "ZHWH",
-        "source": "SAMPLE",
-        "time": "18 AUG 00:00 2026 UNTIL 25 AUG 00:00 2026",
-        "start": "2026-08-18 00:00 UTC",
-        "end": "2026-08-25 00:00 UTC",
-        "is_active": true,
-        "altitude": "0 ~ 无限制 米",
-        "raw_message": "P7890/25 NOTAMN PROHIBITED AREA. NO FLIGHT PERMITTED. 18 AUG 00:00 2026 UNTIL 25 AUG 00:00 2026.",
-        "is_sample": true
-      }
-    }
-  ]
+  "features": []
 }
